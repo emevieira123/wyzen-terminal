@@ -39,9 +39,9 @@ export function TitleBar({ onOpenPalette }: { onOpenPalette: () => void }) {
       <Tabs
         value={activeTabId}
         onValueChange={(tabId) => dispatch({ type: "tab/select", tabId })}
-        className="h-full min-w-0 self-end"
+        className="min-w-0"
       >
-        <TabsList variant="line" className="h-full items-end gap-0.5 overflow-x-auto p-0">
+        <TabsList variant="line" className="h-7 items-center gap-1 overflow-x-auto p-0">
           {tabs.map((tab) => (
             <TabItem key={tab.id} tab={tab} active={tab.id === activeTabId} />
           ))}

@@ -15,9 +15,9 @@ import { cn } from "@/lib/utils"
 import type { Tab } from "@/state/types"
 import { useWorkspace } from "@/state/workspace-context"
 
+// Aba compacta, centrada na mesma linha dos botões da barra e dos semáforos do macOS.
 const tabShape = cn(
-  "h-full flex-none gap-2 rounded-t-lg rounded-b-none border border-transparent pr-8 pl-3 text-[12.5px] font-normal",
-  "-mb-px",
+  "h-full flex-none gap-2 rounded-md border border-transparent pr-7 pl-2.5 text-[12.5px] font-normal",
 )
 
 export function TabItem({ tab, active }: { tab: Tab; active: boolean }) {
@@ -27,7 +27,7 @@ export function TabItem({ tab, active }: { tab: Tab; active: boolean }) {
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="group/tab relative flex h-[34px] items-stretch">
+        <div className="group/tab relative flex h-7 items-stretch">
           {editing ? (
             <RenameField
               initial={tab.title}
@@ -39,7 +39,7 @@ export function TabItem({ tab, active }: { tab: Tab; active: boolean }) {
               className={cn(
                 tabShape,
                 "flex items-center",
-                active && "border-border border-b-background bg-background text-foreground",
+                active && "border-border bg-background text-foreground",
               )}
             />
           ) : (
@@ -49,7 +49,7 @@ export function TabItem({ tab, active }: { tab: Tab; active: boolean }) {
               title="Duplo clique ou botão direito para renomear"
               className={cn(
                 tabShape,
-                "after:hidden data-[state=active]:border-border data-[state=active]:border-b-background",
+                "after:hidden hover:bg-accent/60 data-[state=active]:border-border",
                 "data-[state=active]:bg-background! data-[state=active]:text-foreground",
               )}
             >
