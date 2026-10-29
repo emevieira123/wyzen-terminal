@@ -1,4 +1,4 @@
-import { Combine, FolderOpen, LayoutGrid, Play, Settings, SunMoon, Sparkles } from "lucide-react"
+import { Combine, Download, FolderOpen, LayoutGrid, Play, Settings, SunMoon, Sparkles } from "lucide-react"
 
 import { PaneIcon } from "@/components/PaneIcon"
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/command"
 import { getProviderInfo, PROVIDERS, modelsFor } from "@/lib/agents"
 import { shortcutLabel } from "@/lib/platform"
+import { checkForUpdates } from "@/lib/updater"
 import { useWorkspace } from "@/state/workspace-context"
 
 interface CommandPaletteProps {
@@ -69,6 +70,10 @@ export function CommandPalette({ open, onOpenChange, onOpenSettings, onChangeDir
             >
               <SunMoon />
               {theme === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro"}
+            </CommandItem>
+            <CommandItem onSelect={run(() => void checkForUpdates({ manual: true }))}>
+              <Download />
+              Verificar atualizações
             </CommandItem>
             <CommandItem onSelect={run(onOpenSettings)}>
               <Settings />

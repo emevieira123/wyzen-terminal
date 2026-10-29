@@ -2,6 +2,8 @@
 #
 # Dispara ao enviar uma tag v* (ex.: v0.2.0) ou manualmente pela aba Actions.
 # A versão do release vem de src-tauri/tauri.conf.json; mantenha a tag igual a ela.
+# Também publica o latest.json lido pela atualização do app; ele só vale depois
+# que o rascunho for publicado.
 name: Release
 
 on:
@@ -79,6 +81,9 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Assina os pacotes de atualização; sem isto o app recusa instalar.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: v__VERSION__
           releaseName: Wyzen Terminal v__VERSION__

@@ -27,6 +27,11 @@ portable-pty = "0.9"
 uuid = { version = "1", features = ["v4"] }
 dirs = "6"
 keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
+tauri-plugin-process = "2"
+
+# Atualização pelo app só existe no desktop.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2"
 
 [dev-dependencies]
 tauri = { version = "2", features = ["test"] }

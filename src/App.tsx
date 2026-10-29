@@ -8,9 +8,11 @@ import { StatusBar } from "@/components/layout/StatusBar"
 import { TitleBar } from "@/components/layout/TitleBar"
 import { MainView } from "@/components/MainView"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { pickDirectory } from "@/lib/pick-directory"
 import { isModKey } from "@/lib/platform"
+import { checkForUpdates } from "@/lib/updater"
 import { focusedPane } from "@/state/workspace-reducer"
 import { useWorkspace, WorkspaceProvider } from "@/state/workspace-context"
 
@@ -35,6 +37,16 @@ function Shell() {
     const dir = await pickDirectory(focusedPane(state)?.cwd)
     if (dir) changeDirectory(dir)
   }, [state, changeDirectory])
+
+  // Verifica atualizações logo depois de abrir e a cada 6 horas.
+  useEffect(() => {
+    const first = setTimeout(() => void checkForUpdates(), 5_000)
+    const interval = setInterval(() => void checkForUpdates(), 6 * 60 * 60 * 1000)
+    return () => {
+      clearTimeout(first)
+      clearInterval(interval)
+    }
+  }, [])
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -86,6 +98,7 @@ function Shell() {
       />
       <SettingsDialog open={overlay === "settings"} onOpenChange={setOpen("settings")} />
       <ProjectDialog open={overlay === "project"} onOpenChange={setOpen("project")} />
+      <Toaster theme={state.settings.theme} position="bottom-right" />
     </SidebarProvider>
   )
 }

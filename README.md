@@ -35,6 +35,15 @@ Para lançar uma versão:
 
 Também dá para rodar pela aba Actions > Release > Run workflow, sem criar tag.
 
+### Atualização pelo app
+
+O app verifica o último release publicado ao abrir e a cada 6 horas (também em Configurações e na paleta, "Verificar atualizações"). Havendo versão nova, mostra um aviso; "Atualizar" baixa, instala e reinicia.
+
+- O endpoint é `releases/latest/download/latest.json`, que o workflow gera. Ele só passa a valer quando o rascunho do release é **publicado**.
+- Os pacotes são assinados. A chave pública está em `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`). A privada fica fora do repositório, em `~/.tauri/wyzen-terminal.key`, com a senha em `~/.tauri/wyzen-terminal.key.password`, e no GitHub nos secrets `TAURI_SIGNING_PRIVATE_KEY` e `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+- Perder a chave privada impede atualizar quem já instalou: guarde uma cópia em lugar seguro (ex.: gerenciador de senhas).
+- No Linux, só o `.AppImage` se atualiza sozinho; `.deb` e `.rpm` precisam do instalador novo.
+
 Os instaladores saem sem assinatura. No macOS, o Gatekeeper bloqueia na primeira abertura (libere em Ajustes > Privacidade e Segurança). No Windows, o SmartScreen mostra um aviso ("Mais informações > Executar assim mesmo").
 
 ## Estrutura

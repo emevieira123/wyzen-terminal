@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
+import { getVersion } from "@tauri-apps/api/app"
 
 import { AiSettings } from "@/components/dialogs/AiSettings"
 import { Button } from "@/components/ui/button"
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { checkForUpdates } from "@/lib/updater"
 import { cn } from "@/lib/utils"
 import type { ThemeName, Workflow } from "@/state/types"
 import { newId } from "@/state/workspace-reducer"
@@ -25,6 +27,13 @@ const THEMES: { value: ThemeName; label: string }[] = [
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { state, dispatch } = useWorkspace()
   const { settings } = state
+  const [version, setVersion] = useState<string | null>(null)
+
+  useEffect(() => {
+    getVersion()
+      .then(setVersion)
+      .catch(() => setVersion(null))
+  }, [])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -74,10 +83,18 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
         <Separator />
 
-        <footer className="flex gap-4 text-xs text-dim">
+        <footer className="flex items-center gap-4 text-xs text-dim">
+          <span>Versão {version ?? "…"}</span>
           <span>Shell: {state.shell}</span>
-          <span>Fonte: JetBrains Mono 13.5</span>
           <span>Tauri 2 · xterm.js</span>
+          <Button
+            variant="link"
+            size="xs"
+            className="ml-auto text-dim"
+            onClick={() => void checkForUpdates({ manual: true })}
+          >
+            Verificar atualizações
+          </Button>
         </footer>
       </DialogContent>
     </Dialog>
