@@ -1,6 +1,6 @@
 [package]
 name = "wyzenterminal"
-version = "0.3.0"
+version = "0.3.1"
 description = "Terminal pessoal com workspaces e agentes de IA"
 authors = ["Emerson Vieira"]
 edition = "2024"
