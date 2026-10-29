@@ -1,3 +1,4 @@
+mod process;
 mod pty;
 mod secrets;
 
@@ -45,6 +46,12 @@ fn resize_pty(
 #[tauri::command]
 fn close_pty_session(state: State<'_, PtyManager>, session_id: String) -> Result<(), String> {
     state.close(&session_id)
+}
+
+/// Diretório atual e programa em execução de cada terminal.
+#[tauri::command]
+async fn pty_status(state: State<'_, PtyManager>) -> Result<Vec<process::SessionStatus>, String> {
+    Ok(process::status(state.shell_pids()))
 }
 
 #[tauri::command]
@@ -113,6 +120,7 @@ pub fn run() {
             write_to_pty,
             resize_pty,
             close_pty_session,
+            pty_status,
             default_shell,
             git_branch,
             get_api_key,

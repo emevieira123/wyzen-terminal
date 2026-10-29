@@ -35,9 +35,13 @@ Para lançar uma versão:
 
 Também dá para rodar pela aba Actions > Release > Run workflow, sem criar tag.
 
+### Sessão
+
+Abas, nomes, painéis, tamanhos do grid, pasta de cada terminal e conversas dos agentes são salvos e voltam quando o app abre de novo (inclusive depois de uma atualização). A pasta acompanha os `cd` feitos no shell (consultada a cada 10 segundos via `ps`/`lsof` no macOS e `/proc` no Linux). Os programas que estavam rodando não voltam: cada terminal reabre um shell novo na mesma pasta.
+
 ### Atualização pelo app
 
-O app verifica o último release publicado ao abrir e a cada 6 horas (também em Configurações e na paleta, "Verificar atualizações"). Havendo versão nova, mostra um aviso; "Atualizar" baixa, instala e reinicia.
+O app verifica o último release publicado ao abrir e a cada 6 horas (também em Configurações e na paleta, "Verificar atualizações"). Havendo versão nova, mostra um aviso. Em "Atualizar", se algum terminal tem programa rodando (ex.: `pnpm dev`, `claude`), o app lista quais e pergunta: **Reiniciar agora**, **Instalar e usar depois** (macOS e Linux: instala sem fechar, e a versão nova entra na próxima abertura) ou **Cancelar**. Sem nada rodando, reinicia direto. No Windows o instalador sempre fecha o app, então a confirmação aparece sempre que houver terminal aberto.
 
 - O endpoint é `releases/latest/download/latest.json`, que o workflow gera. Ele só passa a valer quando o rascunho do release é **publicado**.
 - Os pacotes são assinados. A chave pública está em `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`). A privada fica fora do repositório, em `~/.tauri/wyzen-terminal.key`, com a senha em `~/.tauri/wyzen-terminal.key.password`, e no GitHub nos secrets `TAURI_SIGNING_PRIVATE_KEY` e `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
@@ -85,6 +89,8 @@ O `attach` existe porque o shell imprime o prompt antes de o `listen` do fronten
 ## Atalhos
 
 No macOS: ⌘T terminal, ⌘⇧A agente, ⌘K paleta, ⌘, configurações, ⌘B sidebar. Em Windows e Linux os mesmos atalhos usam Ctrl+Shift, porque Ctrl+T/K/A pertencem ao shell.
+
+No grid, arraste o espaço entre os painéis para redimensionar: entre colunas ajusta a largura, entre as linhas ajusta a altura. Duplo clique na divisória volta ao tamanho igual. Adicionar ou fechar um painel reorganiza o grid com tamanhos iguais.
 
 Para renomear uma aba, dê um duplo clique nela ou use o botão direito > Renomear. Nos painéis do grid vale o mesmo: duplo clique no título ou botão direito no cabeçalho. Enter confirma, Esc cancela.
 

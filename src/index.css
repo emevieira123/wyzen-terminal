@@ -192,3 +192,45 @@ body,
 .xterm .xterm-viewport {
   background-color: transparent !important;
 }
+
+/* Divisórias do grid: ocupam o espaço entre os painéis e só aparecem ao passar
+   o mouse ou arrastar. Linhas (aria-orientation=horizontal) ajustam a altura;
+   colunas (vertical), a largura. */
+.grid-divider {
+  position: relative;
+  flex: none;
+  outline: none;
+}
+.grid-divider[aria-orientation="vertical"] {
+  width: 10px;
+  cursor: col-resize;
+}
+.grid-divider[aria-orientation="horizontal"] {
+  height: 10px;
+  cursor: row-resize;
+}
+.grid-divider::before {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.grid-divider[aria-orientation="vertical"]::before {
+  top: 10px;
+  bottom: 10px;
+  left: 4px;
+  width: 2px;
+}
+.grid-divider[aria-orientation="horizontal"]::before {
+  left: 10px;
+  right: 10px;
+  top: 4px;
+  height: 2px;
+}
+.grid-divider:hover::before,
+.grid-divider:focus-visible::before,
+.grid-divider:active::before {
+  opacity: 0.8;
+}

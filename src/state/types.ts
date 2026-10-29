@@ -69,6 +69,8 @@ export interface Tab {
   focusedPaneId: string | null
   /** Um terminal desta aba avisou algo enquanto ela não estava à vista. */
   attention?: boolean
+  /** Tamanhos do grid (porcentagens por painel), por grupo redimensionável. */
+  layouts?: Record<string, Record<string, number>>
 }
 
 export interface WorkspaceState {

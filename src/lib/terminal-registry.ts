@@ -153,6 +153,12 @@ export const terminalRegistry = {
     return handle
   },
 
+  /** Painel dono de uma sessão PTY. */
+  paneOfSession(sessionId: string): string | undefined {
+    for (const [paneId, handle] of handles) if (handle.sessionId === sessionId) return paneId
+    return undefined
+  },
+
   get(paneId: string): TerminalHandle | undefined {
     return handles.get(paneId)
   },

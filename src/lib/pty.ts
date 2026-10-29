@@ -28,6 +28,18 @@ export const pty = {
   },
 }
 
+export interface PtySessionStatus {
+  sessionId: string
+  /** Diretório atual do shell (vazio no Windows). */
+  cwd: string | null
+  /** Programa rodando dentro do shell, se houver (vazio no Windows). */
+  running: string | null
+}
+
+export function ptyStatus(): Promise<PtySessionStatus[]> {
+  return invoke<PtySessionStatus[]>("pty_status")
+}
+
 export function defaultShell(): Promise<string> {
   return invoke<string>("default_shell")
 }

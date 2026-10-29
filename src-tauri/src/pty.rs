@@ -21,6 +21,8 @@ struct PtySession {
     master: Box<dyn MasterPty + Send>,
     writer: Box<dyn Write + Send>,
     child: Box<dyn Child + Send + Sync>,
+    /// PID do shell, para consultar diretório atual e processos filhos.
+    pid: Option<u32>,
     /// Libera a thread de leitura. Fica `Some` até o frontend chamar `attach`.
     attach: Option<Sender<()>>,
 }
@@ -53,6 +55,7 @@ impl PtyManager {
         }
 
         let child = pair.slave.spawn_command(cmd).map_err(|e| e.to_string())?;
+        let pid = child.process_id();
         // O slave precisa ser liberado para o EOF chegar quando o shell sair.
         drop(pair.slave);
 
@@ -66,7 +69,7 @@ impl PtyManager {
 
         self.lock().insert(
             session_id.clone(),
-            PtySession { master: pair.master, writer, child, attach: Some(attach_tx) },
+            PtySession { master: pair.master, writer, child, pid, attach: Some(attach_tx) },
         );
 
         Ok(session_id)
@@ -108,6 +111,14 @@ impl PtyManager {
             session.terminate();
         }
         Ok(())
+    }
+
+    /// PID do shell de cada sessão viva.
+    pub fn shell_pids(&self) -> Vec<(String, u32)> {
+        self.lock()
+            .iter()
+            .filter_map(|(id, session)| session.pid.map(|pid| (id.clone(), pid)))
+            .collect()
     }
 
     pub fn close_all(&self) {

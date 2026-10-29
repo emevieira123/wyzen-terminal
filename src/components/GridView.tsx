@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { Fragment, useState } from "react"
 import { LayoutGrid, Pencil, X } from "lucide-react"
+import { Separator } from "react-resizable-panels"
 
 import { AgentView } from "@/components/AgentView"
 import { PaneIcon } from "@/components/PaneIcon"
@@ -14,33 +15,43 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
-import { GRID_LIMIT, type Tab } from "@/state/types"
+import { GRID_LIMIT, type Pane, type Tab } from "@/state/types"
 import { useWorkspace } from "@/state/workspace-context"
 
+/** Tamanho mínimo de um painel, em pixels, ao redimensionar. */
+const MIN_PANE_WIDTH = 180
+const MIN_ROW_HEIGHT = 110
+
 /**
- * 1-2 painéis: uma linha. 3-4: duas colunas. 5-6: três colunas. A linha de
- * baixo pode ter um painel a menos e ainda ocupa a largura toda, então as
- * colunas da grade são o MMC das duas linhas e cada painel ocupa a fração dele.
+ * Divide os painéis em linhas: 1-2 painéis numa linha; 3-4 em duas colunas;
+ * 5-6 em três colunas. A linha de baixo pode ter um painel a menos e ocupa a
+ * largura toda do mesmo jeito.
  */
-function gridLayout(count: number) {
-  const top = count <= 2 ? count : count <= 4 ? 2 : 3
-  const bottom = count - top
-  const columns = bottom === 0 || bottom === top ? top : top * bottom
-  return {
-    rows: bottom === 0 ? 1 : 2,
-    columns,
-    top,
-    span: (index: number) => (index < top ? columns / top : columns / bottom),
-  }
+function splitRows<T>(items: T[]): T[][] {
+  const top = items.length <= 2 ? items.length : items.length <= 4 ? 2 : 3
+  return [items.slice(0, top), items.slice(top)].filter((row) => row.length > 0)
+}
+
+/** Fatia igual em porcentagem; é para onde o duplo clique na divisória volta. */
+const equalShare = (count: number) => `${100 / count}%`
+
+/** Divisória invisível no espaço entre os painéis; mostra uma linha ao passar o mouse ou arrastar. */
+function GridDivider() {
+  return <Separator className="grid-divider" />
 }
 
 export function GridView({ tab }: { tab: Tab }) {
   const { state, dispatch } = useWorkspace()
   const panes = tab.paneIds.map((id) => state.panes[id]).filter((p) => p !== undefined)
   const full = panes.length >= GRID_LIMIT
-  const layout = gridLayout(panes.length)
-  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const rows = splitRows(panes)
+  // Adicionar ou fechar um painel recompõe as linhas; os tamanhos voltam a ser iguais.
+  const layoutKey = panes.map((p) => p.id).join(",")
+  // Guardados na aba para a sessão restaurar o grid como estava.
+  const saveLayout = (key: string, layout: Record<string, number>) =>
+    dispatch({ type: "tab/layout", tabId: tab.id, key, layout })
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -51,7 +62,7 @@ export function GridView({ tab }: { tab: Tab }) {
         </span>
         <span>
           {panes.length} {panes.length === 1 ? "painel" : "painéis"}
-          {layout.rows === 2 && ` · ${layout.top} em cima, ${panes.length - layout.top} embaixo`}
+          {rows.length === 2 && ` · ${rows[0].length} em cima, ${rows[1].length} embaixo`}
         </span>
         {full && (
           <Badge variant="outline" className="border-warning/40 text-warning">
@@ -84,89 +95,105 @@ export function GridView({ tab }: { tab: Tab }) {
           Grid vazio · adicione até {GRID_LIMIT} terminais ou agentes
         </div>
       ) : (
-        <div
-          className="grid min-h-0 flex-1 gap-2.5 p-3"
-          style={{
-            gridTemplateColumns: `repeat(${layout.columns}, minmax(0, 1fr))`,
-            gridTemplateRows: `repeat(${layout.rows}, minmax(0, 1fr))`,
-          }}
-        >
-          {panes.map((pane, index) => {
-            const focused = (tab.focusedPaneId ?? tab.paneIds[0]) === pane.id
-            return (
-              <section
-                key={pane.id}
-                style={{ gridColumn: `span ${layout.span(index)}` }}
-                onMouseDownCapture={() => {
-                  if (!focused) dispatch({ type: "pane/focus", tabId: tab.id, paneId: pane.id })
-                }}
-                className={cn(
-                  "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[10px] border bg-chrome",
-                  focused && "border-primary",
-                )}
-              >
-                <ContextMenu>
-                  <ContextMenuTrigger asChild>
-                    <header className="flex items-center gap-2 border-b bg-panel px-2.5 py-1.5 text-xs text-muted-foreground">
-                      <PaneIcon kind={pane.kind} />
-                      {renamingId === pane.id ? (
-                        <RenameField
-                          initial={pane.title}
-                          onDone={(title) => {
-                            setRenamingId(null)
-                            if (title !== null) dispatch({ type: "pane/rename", paneId: pane.id, title })
-                          }}
-                          className="flex items-center"
-                        />
-                      ) : (
-                        <span
-                          className="text-foreground"
-                          title="Duplo clique ou botão direito para renomear"
-                          onDoubleClick={() => setRenamingId(pane.id)}
-                        >
-                          {pane.title}
-                        </span>
-                      )}
-                      <span className="min-w-0 truncate font-mono text-[11px]">{pane.cwd}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="ml-auto text-dim"
-                        aria-label="Fechar painel"
-                        onClick={() => dispatch({ type: "pane/close", tabId: tab.id, paneId: pane.id })}
-                      >
-                        <X />
-                      </Button>
-                    </header>
-                  </ContextMenuTrigger>
-                  {/* Sem devolver o foco ao cabeçalho: ele precisa ir para o campo de renomear. */}
-                  <ContextMenuContent className="w-44" onCloseAutoFocus={(event) => event.preventDefault()}>
-                    <ContextMenuItem onSelect={() => setRenamingId(pane.id)}>
-                      <Pencil />
-                      Renomear
-                    </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem
-                      variant="destructive"
-                      onSelect={() => dispatch({ type: "pane/close", tabId: tab.id, paneId: pane.id })}
-                    >
-                      <X />
-                      Fechar painel
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-                <div className="min-h-0 flex-1">
-                  {pane.kind === "terminal" ? (
-                    <TerminalView paneId={pane.id} cwd={pane.cwd} focused={focused} className="p-2" />
-                  ) : (
-                    <AgentView pane={pane} compact />
-                  )}
-                </div>
-              </section>
-            )
-          })}
+        <div className="min-h-0 flex-1 p-3">
+          <ResizablePanelGroup
+            key={layoutKey}
+            orientation="vertical"
+            defaultLayout={tab.layouts?.[`${layoutKey}|rows`]}
+            onLayoutChanged={(layout) => saveLayout(`${layoutKey}|rows`, layout)}
+          >
+            {rows.map((row, r) => (
+              <Fragment key={r}>
+                {r > 0 && <GridDivider />}
+                <ResizablePanel id={`row-${r}`} defaultSize={equalShare(rows.length)} minSize={MIN_ROW_HEIGHT}>
+                  <ResizablePanelGroup
+                    orientation="horizontal"
+                    defaultLayout={tab.layouts?.[`${layoutKey}|row-${r}`]}
+                    onLayoutChanged={(layout) => saveLayout(`${layoutKey}|row-${r}`, layout)}
+                  >
+                    {row.map((pane, i) => (
+                      <Fragment key={pane.id}>
+                        {i > 0 && <GridDivider />}
+                        <ResizablePanel id={pane.id} defaultSize={equalShare(row.length)} minSize={MIN_PANE_WIDTH}>
+                          <PaneCard tab={tab} pane={pane} />
+                        </ResizablePanel>
+                      </Fragment>
+                    ))}
+                  </ResizablePanelGroup>
+                </ResizablePanel>
+              </Fragment>
+            ))}
+          </ResizablePanelGroup>
         </div>
       )}
     </div>
+  )
+}
+
+function PaneCard({ tab, pane }: { tab: Tab; pane: Pane }) {
+  const { dispatch } = useWorkspace()
+  const [renaming, setRenaming] = useState(false)
+  const focused = (tab.focusedPaneId ?? tab.paneIds[0]) === pane.id
+  const close = () => dispatch({ type: "pane/close", tabId: tab.id, paneId: pane.id })
+
+  return (
+    <section
+      onMouseDownCapture={() => {
+        if (!focused) dispatch({ type: "pane/focus", tabId: tab.id, paneId: pane.id })
+      }}
+      className={cn(
+        "flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-[10px] border bg-chrome",
+        focused && "border-primary",
+      )}
+    >
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <header className="flex items-center gap-2 border-b bg-panel px-2.5 py-1.5 text-xs text-muted-foreground">
+            <PaneIcon kind={pane.kind} />
+            {renaming ? (
+              <RenameField
+                initial={pane.title}
+                onDone={(title) => {
+                  setRenaming(false)
+                  if (title !== null) dispatch({ type: "pane/rename", paneId: pane.id, title })
+                }}
+                className="flex items-center"
+              />
+            ) : (
+              <span
+                className="text-foreground"
+                title="Duplo clique ou botão direito para renomear"
+                onDoubleClick={() => setRenaming(true)}
+              >
+                {pane.title}
+              </span>
+            )}
+            <span className="min-w-0 truncate font-mono text-[11px]">{pane.cwd}</span>
+            <Button variant="ghost" size="icon-xs" className="ml-auto text-dim" aria-label="Fechar painel" onClick={close}>
+              <X />
+            </Button>
+          </header>
+        </ContextMenuTrigger>
+        {/* Sem devolver o foco ao cabeçalho: ele precisa ir para o campo de renomear. */}
+        <ContextMenuContent className="w-44" onCloseAutoFocus={(event) => event.preventDefault()}>
+          <ContextMenuItem onSelect={() => setRenaming(true)}>
+            <Pencil />
+            Renomear
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem variant="destructive" onSelect={close}>
+            <X />
+            Fechar painel
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+      <div className="min-h-0 flex-1">
+        {pane.kind === "terminal" ? (
+          <TerminalView paneId={pane.id} cwd={pane.cwd} focused={focused} className="p-2" />
+        ) : (
+          <AgentView pane={pane} compact />
+        )}
+      </div>
+    </section>
   )
 }

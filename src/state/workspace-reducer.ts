@@ -22,6 +22,7 @@ export type WorkspaceAction =
   | { type: "tab/close"; tabId: string }
   | { type: "tab/rename"; tabId: string; title: string }
   | { type: "tab/attention"; paneId: string }
+  | { type: "tab/layout"; tabId: string; key: string; layout: Record<string, number> }
   | { type: "pane/addToGrid"; tabId: string; kind: PaneKind }
   | { type: "pane/focus"; tabId: string; paneId: string }
   | { type: "pane/close"; tabId: string; paneId: string }
@@ -212,6 +213,18 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
       if (!tab) return state
       const seen = updateTab(state, tab.id, (t) => ({ ...t, attention: false }))
       return withActiveTab({ ...seen, activeProjectId: tab.projectId }, tab.projectId, tab.id)
+    }
+
+    case "tab/layout": {
+      // Chaves de outra composição do grid (antes de adicionar/fechar painel) já não servem.
+      const prefix = action.key.split("|")[0]
+      return updateTab(state, action.tabId, (t) => ({
+        ...t,
+        layouts: {
+          ...Object.fromEntries(Object.entries(t.layouts ?? {}).filter(([key]) => key.startsWith(`${prefix}|`))),
+          [action.key]: action.layout,
+        },
+      }))
     }
 
     case "tab/attention": {

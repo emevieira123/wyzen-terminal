@@ -10,8 +10,10 @@ import {
 } from "react"
 
 import { DEFAULT_MODEL_ID, getModel } from "@/lib/agents"
-import { defaultShell, quotePath } from "@/lib/pty"
+import { defaultShell, ptyStatus, quotePath, type PtySessionStatus } from "@/lib/pty"
+import { setBeforeRestart } from "@/lib/restart"
 import { terminalRegistry } from "@/lib/terminal-registry"
+import { loadSession, saveSession } from "@/state/session"
 import type { Project, Settings, Workflow, WorkspaceState } from "@/state/types"
 import {
   focusedPane,
@@ -68,16 +70,31 @@ function loadPersisted(): Persisted {
 
 function initState(): WorkspaceState {
   const { projects, workflows, settings } = loadPersisted()
+  const session = loadSession(projects.map((p) => p.id))
   return {
     projects,
     workflows,
     settings,
-    panes: {},
-    tabs: [],
-    activeProjectId: projects[0].id,
-    activeTabByProject: Object.fromEntries(projects.map((p) => [p.id, null])),
+    panes: session?.panes ?? {},
+    tabs: session?.tabs ?? [],
+    activeProjectId: session?.activeProjectId ?? projects[0].id,
+    activeTabByProject: {
+      ...Object.fromEntries(projects.map((p) => [p.id, null])),
+      ...session?.activeTabByProject,
+    },
     shell: "shell",
   }
+}
+
+/** Atualiza o diretório dos painéis de terminal com o diretório real de cada shell. */
+function withCurrentCwds(state: WorkspaceState, statuses: PtySessionStatus[]): WorkspaceState {
+  let panes = state.panes
+  for (const { sessionId, cwd } of statuses) {
+    const paneId = terminalRegistry.paneOfSession(sessionId)
+    const pane = paneId ? panes[paneId] : undefined
+    if (pane && cwd && pane.cwd !== cwd) panes = { ...panes, [pane.id]: { ...pane, cwd } }
+  }
+  return panes === state.panes ? state : { ...state, panes }
 }
 
 interface WorkspaceContextValue {
@@ -117,6 +134,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.toggle("dark", state.settings.theme === "dark")
     terminalRegistry.setTheme(state.settings.theme)
   }, [state.settings.theme])
+
+  // Sessão (abas, painéis, grid, conversas) salva a cada mudança, agrupando rajadas.
+  useEffect(() => {
+    const timer = setTimeout(() => saveSession(state), 500)
+    return () => clearTimeout(timer)
+  }, [state.tabs, state.panes, state.activeProjectId, state.activeTabByProject])
+
+  // O shell pode ter mudado de pasta com `cd`; acompanha para reabrir no lugar certo.
+  useEffect(() => {
+    const sync = async () => {
+      const statuses = await ptyStatus().catch(() => [])
+      const current = stateRef.current
+      const updated = withCurrentCwds(current, statuses)
+      for (const pane of Object.values(updated.panes)) {
+        if (pane.cwd !== current.panes[pane.id]?.cwd) dispatch({ type: "pane/setCwd", paneId: pane.id, cwd: pane.cwd })
+      }
+      return updated
+    }
+    const interval = setInterval(() => void sync(), 10_000)
+    setBeforeRestart(async () => saveSession(await sync()))
+    return () => {
+      clearInterval(interval)
+      setBeforeRestart(null)
+    }
+  }, [])
 
   // Painel de terminal que sumiu do estado = PTY a encerrar.
   const previousPanes = useRef(state.panes)

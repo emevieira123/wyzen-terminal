@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react"
 import { CommandPalette } from "@/components/dialogs/CommandPalette"
 import { ProjectDialog } from "@/components/dialogs/ProjectDialog"
 import { SettingsDialog } from "@/components/dialogs/SettingsDialog"
+import { UpdateDialog } from "@/components/dialogs/UpdateDialog"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { StatusBar } from "@/components/layout/StatusBar"
 import { TitleBar } from "@/components/layout/TitleBar"
@@ -100,6 +101,7 @@ function Shell() {
       />
       <SettingsDialog open={overlay === "settings"} onOpenChange={setOpen("settings")} />
       <ProjectDialog open={overlay === "project"} onOpenChange={setOpen("project")} />
+      <UpdateDialog />
       <Toaster theme={state.settings.theme} position="bottom-right" />
     </SidebarProvider>
   )
