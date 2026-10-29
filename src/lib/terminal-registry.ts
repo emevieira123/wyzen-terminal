@@ -74,6 +74,17 @@ function createHandle(paneId: string, cwd: string): TerminalHandle {
     void pty.write(handle.sessionId, data)
   })
 
+  // Shift+Enter quebra linha sem executar: manda ESC+CR, o mesmo que Alt+Enter.
+  // O zsh insere um "\n" no buffer (self-insert-unmeta) e CLIs como o Claude Code
+  // tratam a sequência como nova linha.
+  term.attachCustomKeyEventHandler((event) => {
+    const isShiftEnter =
+      event.key === "Enter" && event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey
+    if (!isShiftEnter) return true
+    if (event.type === "keydown") term.input("\x1b\r", true)
+    return false
+  })
+
   term.onResize(({ cols, rows }) => {
     if (handle.sessionId) void pty.resize(handle.sessionId, cols, rows)
   })
