@@ -55,6 +55,9 @@ export function TabItem({ tab, active }: { tab: Tab; active: boolean }) {
             >
               <PaneIcon kind={tab.kind} />
               {tab.title}
+              {tab.attention && !active && (
+                <span className="size-1.5 rounded-full bg-warning" aria-label="tem aviso novo" />
+              )}
             </TabsTrigger>
           )}
           <button

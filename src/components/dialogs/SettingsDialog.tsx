@@ -65,6 +65,30 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
         <Separator />
 
+        <section className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Avisos dos terminais</span>
+          <p className="text-xs text-dim">
+            Quando um programa no terminal avisa algo (ex.: o Claude Code terminou ou pede aprovação) e você não está
+            olhando aquela aba.
+          </p>
+          <Label className="text-[13px] font-normal">
+            <Switch
+              checked={settings.alertSound}
+              onCheckedChange={(alertSound) => dispatch({ type: "settings/update", patch: { alertSound } })}
+            />
+            Tocar som
+          </Label>
+          <Label className="text-[13px] font-normal">
+            <Switch
+              checked={settings.alertSystem}
+              onCheckedChange={(alertSystem) => dispatch({ type: "settings/update", patch: { alertSystem } })}
+            />
+            Notificação do sistema com a janela fora de foco
+          </Label>
+        </section>
+
+        <Separator />
+
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2.5">
             <span className="text-xs text-muted-foreground">Workflows</span>

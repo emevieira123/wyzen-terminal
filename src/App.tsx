@@ -10,6 +10,7 @@ import { MainView } from "@/components/MainView"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { useTerminalAlerts } from "@/hooks/use-terminal-alerts"
 import { pickDirectory } from "@/lib/pick-directory"
 import { isModKey } from "@/lib/platform"
 import { checkForUpdates } from "@/lib/updater"
@@ -31,6 +32,7 @@ type Overlay = "palette" | "settings" | "project" | null
 function Shell() {
   const { state, dispatch, changeDirectory } = useWorkspace()
   const [overlay, setOverlay] = useState<Overlay>(null)
+  useTerminalAlerts(state, dispatch)
   const setOpen = (name: Exclude<Overlay, null>) => (open: boolean) => setOverlay(open ? name : null)
 
   const promptChangeDirectory = useCallback(async () => {

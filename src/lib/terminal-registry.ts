@@ -5,6 +5,7 @@ import type { UnlistenFn } from "@tauri-apps/api/event"
 import { openUrl } from "@tauri-apps/plugin-opener"
 
 import { pty } from "@/lib/pty"
+import { watchTerminalAlerts } from "@/lib/terminal-alerts"
 import { xtermThemes } from "@/lib/xterm-theme"
 import type { ThemeName } from "@/state/types"
 
@@ -45,6 +46,7 @@ function createHandle(paneId: string, cwd: string): TerminalHandle {
   const fit = new FitAddon()
   term.loadAddon(fit)
   term.loadAddon(new WebLinksAddon((_event, uri) => void openUrl(uri)))
+  watchTerminalAlerts(term, paneId)
 
   const host = document.createElement("div")
   host.className = "h-full w-full"

@@ -22,6 +22,10 @@ export interface Settings {
   showWorkflows: boolean
   /** Modelos encontrados na conta de cada provedor ("Atualizar modelos"). */
   discoveredModels: Partial<Record<ProviderId, string[]>>
+  /** Som nos avisos vindos dos terminais (ex.: Claude Code terminou). */
+  alertSound: boolean
+  /** Notificação do sistema quando a janela não está em foco. */
+  alertSystem: boolean
 }
 
 interface PaneBase {
@@ -63,6 +67,8 @@ export interface Tab {
   title: string
   paneIds: string[]
   focusedPaneId: string | null
+  /** Um terminal desta aba avisou algo enquanto ela não estava à vista. */
+  attention?: boolean
 }
 
 export interface WorkspaceState {

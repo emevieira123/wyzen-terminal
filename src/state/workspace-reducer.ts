@@ -21,6 +21,7 @@ export type WorkspaceAction =
   | { type: "tab/select"; tabId: string }
   | { type: "tab/close"; tabId: string }
   | { type: "tab/rename"; tabId: string; title: string }
+  | { type: "tab/attention"; paneId: string }
   | { type: "pane/addToGrid"; tabId: string; kind: PaneKind }
   | { type: "pane/focus"; tabId: string; paneId: string }
   | { type: "pane/close"; tabId: string; paneId: string }
@@ -138,8 +139,12 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
       }
     }
 
-    case "project/select":
-      return { ...state, activeProjectId: action.projectId }
+    case "project/select": {
+      // A aba ativa do projeto fica à vista: o aviso dela já foi visto.
+      const tabId = state.activeTabByProject[action.projectId]
+      const seen = tabId ? updateTab(state, tabId, (t) => ({ ...t, attention: false })) : state
+      return { ...seen, activeProjectId: action.projectId }
+    }
 
     case "tab/new": {
       const project = activeProject(state)
@@ -205,7 +210,14 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
     case "tab/select": {
       const tab = state.tabs.find((t) => t.id === action.tabId)
       if (!tab) return state
-      return withActiveTab({ ...state, activeProjectId: tab.projectId }, tab.projectId, tab.id)
+      const seen = updateTab(state, tab.id, (t) => ({ ...t, attention: false }))
+      return withActiveTab({ ...seen, activeProjectId: tab.projectId }, tab.projectId, tab.id)
+    }
+
+    case "tab/attention": {
+      const tab = state.tabs.find((t) => t.paneIds.includes(action.paneId))
+      if (!tab || tab.attention) return state
+      return updateTab(state, tab.id, (t) => ({ ...t, attention: true }))
     }
 
     case "tab/close":

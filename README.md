@@ -88,6 +88,38 @@ No macOS: ⌘T terminal, ⌘⇧A agente, ⌘K paleta, ⌘, configurações, ⌘B
 
 Para renomear uma aba, dê um duplo clique nela ou use o botão direito > Renomear. Nos painéis do grid vale o mesmo: duplo clique no título ou botão direito no cabeçalho. Enter confirma, Esc cancela.
 
+## Avisos dos terminais (Claude Code)
+
+Programas podem avisar algo pelo próprio terminal com as sequências OSC 9, OSC 777 ou OSC 99 (o padrão de iTerm2, Ghostty, Kitty e Windows Terminal). Quando um aviso chega de uma aba que você não está olhando, o Wyzen mostra um toast com o nome da aba e o botão "Ver", toca um som, marca a aba (e o projeto na sidebar) e, com a janela fora de foco, envia uma notificação do sistema. Som e notificação do sistema podem ser desligados em Configurações.
+
+Para o Claude Code avisar quando termina uma tarefa ou precisa de aprovação, use o hook em `extras/claude-code/wyzen-notify.sh` (requer `jq`):
+
+```sh
+mkdir -p ~/.claude/hooks
+cp extras/claude-code/wyzen-notify.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/wyzen-notify.sh
+```
+
+E no `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "~/.claude/hooks/wyzen-notify.sh" }] }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|elicitation_dialog|elicitation_url_dialog|agent_needs_input",
+        "hooks": [{ "type": "command", "command": "~/.claude/hooks/wyzen-notify.sh" }]
+      }
+    ]
+  }
+}
+```
+
+O script só age quando `TERM_PROGRAM=WyzenTerminal`; em outros terminais não faz nada. O `idle_prompt` fica de fora do matcher porque repete, 60 segundos depois, o aviso que o `Stop` já deu.
+
 ## Agentes de IA
 
 Três provedores, cada um com o SDK oficial e streaming: **Claude** (Anthropic, padrão), **GPT** (OpenAI) e **Gemini** (Google).

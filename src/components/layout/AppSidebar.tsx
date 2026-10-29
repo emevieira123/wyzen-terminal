@@ -49,7 +49,9 @@ export function AppSidebar({ onAddProject, onOpenSettings }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {state.projects.map((project) => {
-                const count = state.tabs.filter((t) => t.projectId === project.id).length
+                const projectTabs = state.tabs.filter((t) => t.projectId === project.id)
+                const count = projectTabs.length
+                const attention = project.id !== state.activeProjectId && projectTabs.some((t) => t.attention)
                 return (
                   <SidebarMenuItem key={project.id}>
                     <SidebarMenuButton
@@ -60,6 +62,7 @@ export function AppSidebar({ onAddProject, onOpenSettings }: AppSidebarProps) {
                     >
                       <span className="size-2 shrink-0 rounded-[2px]" style={{ background: project.color }} />
                       <span className="truncate">{project.name}</span>
+                      {attention && <span className="size-1.5 shrink-0 rounded-full bg-warning" aria-label="tem aviso novo" />}
                     </SidebarMenuButton>
                     <SidebarMenuBadge className="font-mono text-[11px] text-dim group-hover/menu-item:opacity-0">
                       {count}

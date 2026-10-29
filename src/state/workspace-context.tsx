@@ -34,6 +34,8 @@ const DEFAULT_SETTINGS: Settings = {
   modelId: DEFAULT_MODEL_ID,
   showWorkflows: true,
   discoveredModels: {},
+  alertSound: true,
+  alertSystem: true,
 }
 
 function loadPersisted(): Persisted {
