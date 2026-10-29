@@ -17,6 +17,26 @@ pnpm tauri build    # bundle de produção
 cd src-tauri && cargo test   # testes do backend
 ```
 
+## Releases (macOS, Linux e Windows)
+
+O workflow `.github/workflows/release.yml` compila nos runners do GitHub e anexa os instaladores a um release em rascunho:
+
+| Sistema | Arquivos |
+| --- | --- |
+| macOS Apple Silicon e Intel | `.dmg` e `.app.tar.gz` |
+| Linux | `.deb`, `.rpm` e `.AppImage` |
+| Windows | `.exe` (NSIS) e `.msi` |
+
+Para lançar uma versão:
+
+1. Atualize a versão em `package.json`, `src-tauri/Cargo.toml` e `src-tauri/tauri.conf.json` (as três iguais).
+2. Faça o commit e envie a tag: `git tag v0.2.0 && git push origin main v0.2.0`.
+3. Quando os quatro jobs terminarem, revise o rascunho em Releases e publique.
+
+Também dá para rodar pela aba Actions > Release > Run workflow, sem criar tag.
+
+Os instaladores saem sem assinatura. No macOS, o Gatekeeper bloqueia na primeira abertura (libere em Ajustes > Privacidade e Segurança). No Windows, o SmartScreen mostra um aviso ("Mais informações > Executar assim mesmo").
+
 ## Estrutura
 
 ```

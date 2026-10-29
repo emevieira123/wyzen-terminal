@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core"
 import { listen, type UnlistenFn } from "@tauri-apps/api/event"
 
+import { isWindows } from "@/lib/platform"
+
 /** Wrappers tipados para os commands do `src-tauri/src/lib.rs`. */
 export const pty = {
   create(cwd: string, cols?: number, rows?: number): Promise<string> {
@@ -34,7 +36,11 @@ export function gitBranch(cwd: string): Promise<string | null> {
   return invoke<string | null>("git_branch", { cwd })
 }
 
-/** Aspas simples para POSIX; PowerShell aceita o mesmo formato com '' escapado. */
+/**
+ * Aspas simples para o shell da plataforma. Dentro de aspas simples, o
+ * PowerShell escapa ' dobrando (''); zsh/bash fecham, escapam e reabrem ('\'').
+ */
 export function quotePath(path: string): string {
-  return `'${path.replaceAll("'", "'\\''")}'`
+  const escaped = isWindows ? path.replaceAll("'", "''") : path.replaceAll("'", "'\\''")
+  return `'${escaped}'`
 }

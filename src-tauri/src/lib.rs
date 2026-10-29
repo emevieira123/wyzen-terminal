@@ -54,11 +54,16 @@ fn default_shell() -> String {
 /// Branch atual do repositório em `cwd`, ou `None` fora de um repositório git.
 #[tauri::command]
 async fn git_branch(cwd: String) -> Option<String> {
-    let output = Command::new("git")
-        .args(["rev-parse", "--abbrev-ref", "HEAD"])
-        .current_dir(pty::resolve_cwd(&cwd))
-        .output()
-        .ok()?;
+    let mut cmd = Command::new("git");
+    cmd.args(["rev-parse", "--abbrev-ref", "HEAD"]).current_dir(pty::resolve_cwd(&cwd));
+    // Sem esta flag o Windows abre um console por um instante a cada consulta.
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+    let output = cmd.output().ok()?;
     if !output.status.success() {
         return None;
     }
