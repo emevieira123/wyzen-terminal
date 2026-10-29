@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Wyzen Terminal",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "identifier": "com.wyzen.terminal",
   "build": {
     "beforeDevCommand": "pnpm dev",
