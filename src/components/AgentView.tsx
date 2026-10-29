@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from "react"
-import { CornerDownLeft, Sparkles, Square } from "lucide-react"
+import { CornerDownLeft, ExternalLink, Sparkles, Square } from "lucide-react"
+import { openUrl } from "@tauri-apps/plugin-opener"
 
 import { ModelSelect } from "@/components/ModelSelect"
 import { Button } from "@/components/ui/button"
 import { useGitBranch } from "@/hooks/use-git-branch"
-import { AgentError, getModel, getProvider, modelName, withoutCommandBlock, type AgentMessage } from "@/lib/agents"
+import { AgentError, getModel, getProvider, modelName, withoutCommandBlock, type AgentMessage, type NoteLink } from "@/lib/agents"
 import { isMac, isWindows } from "@/lib/platform"
 import { cn } from "@/lib/utils"
 import type { AgentPane, Project } from "@/state/types"
@@ -54,7 +55,8 @@ export function AgentView({ pane, compact = false }: AgentViewProps) {
   }, [compact])
 
   const append = (message: AgentMessage) => dispatch({ type: "agent/append", paneId: pane.id, message })
-  const note = (text: string, tone: "error" | "info" = "info") => append({ role: "note", text, tone })
+  const note = (text: string, tone: "error" | "info" = "info", link?: NoteLink) =>
+    append({ role: "note", text, tone, link })
 
   async function submit(event: FormEvent) {
     event.preventDefault()
@@ -103,7 +105,8 @@ export function AgentView({ pane, compact = false }: AgentViewProps) {
         if (partial) append({ role: "assistant", text: partial, modelId: model.id })
         note("Resposta interrompida.")
       } else {
-        note(error instanceof AgentError ? error.message : `Erro inesperado: ${String(error)}`, "error")
+        if (error instanceof AgentError) note(error.message, "error", error.link)
+        else note(`Erro inesperado: ${String(error)}`, "error")
       }
     } finally {
       abortRef.current = null
@@ -207,8 +210,21 @@ function MessageBubble({
   onRun: (cmd: string) => void
 }) {
   if (message.role === "note") {
+    const { link } = message
     return (
-      <p className={cn("text-xs", message.tone === "error" ? "text-destructive" : "text-dim")}>{message.text}</p>
+      <p className={cn("text-xs", message.tone === "error" ? "text-destructive" : "text-dim")}>
+        {message.text}
+        {link && (
+          <button
+            type="button"
+            onClick={() => void openUrl(link.url)}
+            className="ml-1.5 inline-flex items-center gap-1 text-foreground underline underline-offset-2 hover:text-primary"
+          >
+            {link.label}
+            <ExternalLink className="size-3" />
+          </button>
+        )}
+      </p>
     )
   }
 

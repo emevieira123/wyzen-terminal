@@ -128,7 +128,12 @@ export type AgentMessage =
       raw?: unknown
     }
   /** Aviso local (erro, recusa, interrupção). Nunca vai para o modelo. */
-  | { role: "note"; text: string; tone: "error" | "info" }
+  | { role: "note"; text: string; tone: "error" | "info"; link?: NoteLink }
+
+export interface NoteLink {
+  label: string
+  url: string
+}
 
 export interface AgentRequest {
   model: ModelInfo
@@ -154,7 +159,15 @@ export interface AgentProvider {
   listModels(): Promise<string[]>
 }
 
-export class AgentError extends Error {}
+export class AgentError extends Error {
+  constructor(
+    message: string,
+    /** Página onde o usuário resolve o problema (ex.: cobrança do provedor). */
+    readonly link?: NoteLink,
+  ) {
+    super(message)
+  }
+}
 
 const providers = new Map<ProviderId, AgentProvider>()
 

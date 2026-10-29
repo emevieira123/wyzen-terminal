@@ -41,6 +41,12 @@ const CHAT_MODEL = /^(gpt-|o\d|chatgpt-)/
 const NOT_CHAT = /(audio|realtime|tts|transcribe|image|search|embedding|instruct|moderation|live|dall-e|codex)/
 
 function describeError(error: unknown): never {
+  if (error instanceof OpenAI.RateLimitError && error.code === "insufficient_quota") {
+    throw new AgentError("Sua conta da API da OpenAI está sem créditos. A assinatura do ChatGPT não cobre a API.", {
+      label: "Adicionar créditos",
+      url: "https://platform.openai.com/settings/organization/billing/overview",
+    })
+  }
   if (error instanceof OpenAI.AuthenticationError) {
     throw new AgentError("A OpenAI recusou a chave de API. Confira em Configurações > Provedor de IA > GPT.")
   }
@@ -51,7 +57,7 @@ function describeError(error: unknown): never {
     throw new AgentError("Modelo não encontrado para esta conta. Atualize a lista em Configurações.")
   }
   if (error instanceof OpenAI.RateLimitError) {
-    throw new AgentError("Limite de uso ou de créditos atingido na OpenAI.")
+    throw new AgentError("Limite de uso atingido na OpenAI. Tente de novo em instantes.")
   }
   if (error instanceof OpenAI.APIConnectionError) {
     throw new AgentError("Sem conexão com a API da OpenAI.")

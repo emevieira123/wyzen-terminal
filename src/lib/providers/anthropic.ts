@@ -68,7 +68,20 @@ function finalText(content: Block[]): string {
     .join("")
 }
 
+/** Mensagem do corpo de erro da API, sem o JSON em volta. */
+function apiMessage(error: InstanceType<typeof Anthropic.APIError>): string {
+  const body = error.error as { error?: { message?: string } } | undefined
+  return body?.error?.message ?? error.message
+}
+
 function describeError(error: unknown): never {
+  // Falta de créditos chega como invalid_request_error genérico; só a mensagem a distingue.
+  if (error instanceof Anthropic.BadRequestError && /credit balance/i.test(apiMessage(error))) {
+    throw new AgentError("Sua conta da API da Anthropic está sem créditos. A assinatura do Claude (Pro/Max) não cobre a API.", {
+      label: "Adicionar créditos",
+      url: "https://platform.claude.com/settings/billing",
+    })
+  }
   if (error instanceof Anthropic.AuthenticationError) {
     throw new AgentError("A Anthropic recusou a chave de API. Confira em Configurações > Provedor de IA > Claude.")
   }
@@ -85,7 +98,7 @@ function describeError(error: unknown): never {
     throw new AgentError("Sem conexão com a API da Anthropic.")
   }
   if (error instanceof Anthropic.APIError) {
-    throw new AgentError(`Erro da API (${error.status ?? "?"}): ${error.message}`)
+    throw new AgentError(`Erro da API da Anthropic (${error.status ?? "?"}): ${apiMessage(error)}`)
   }
   throw error
 }
