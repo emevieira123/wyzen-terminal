@@ -1,0 +1,91 @@
+mod pty;
+
+use std::process::Command;
+
+use pty::PtyManager;
+use tauri::{AppHandle, Manager, RunEvent, State};
+
+const DEFAULT_COLS: u16 = 80;
+const DEFAULT_ROWS: u16 = 24;
+
+/// Abre um shell no diretório `cwd` e devolve o `sessionId`.
+/// A saída só começa a fluir depois de `attach_pty_session`.
+#[tauri::command]
+async fn create_pty_session(
+    app: AppHandle,
+    state: State<'_, PtyManager>,
+    cwd: String,
+    cols: Option<u16>,
+    rows: Option<u16>,
+) -> Result<String, String> {
+    state.create(&app, &cwd, cols.unwrap_or(DEFAULT_COLS), rows.unwrap_or(DEFAULT_ROWS))
+}
+
+#[tauri::command]
+fn attach_pty_session(state: State<'_, PtyManager>, session_id: String) -> Result<(), String> {
+    state.attach(&session_id)
+}
+
+#[tauri::command]
+fn write_to_pty(state: State<'_, PtyManager>, session_id: String, data: String) -> Result<(), String> {
+    state.write(&session_id, &data)
+}
+
+#[tauri::command]
+fn resize_pty(
+    state: State<'_, PtyManager>,
+    session_id: String,
+    cols: u16,
+    rows: u16,
+) -> Result<(), String> {
+    state.resize(&session_id, cols, rows)
+}
+
+#[tauri::command]
+fn close_pty_session(state: State<'_, PtyManager>, session_id: String) -> Result<(), String> {
+    state.close(&session_id)
+}
+
+#[tauri::command]
+fn default_shell() -> String {
+    pty::default_shell_name()
+}
+
+/// Branch atual do repositório em `cwd`, ou `None` fora de um repositório git.
+#[tauri::command]
+async fn git_branch(cwd: String) -> Option<String> {
+    let output = Command::new("git")
+        .args(["rev-parse", "--abbrev-ref", "HEAD"])
+        .current_dir(pty::resolve_cwd(&cwd))
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let branch = String::from_utf8(output.stdout).ok()?.trim().to_owned();
+    (!branch.is_empty()).then_some(branch)
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
+        .manage(PtyManager::default())
+        .invoke_handler(tauri::generate_handler![
+            create_pty_session,
+            attach_pty_session,
+            write_to_pty,
+            resize_pty,
+            close_pty_session,
+            default_shell,
+            git_branch,
+        ])
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app, event| {
+            if let RunEvent::Exit = event {
+                app.state::<PtyManager>().close_all();
+            }
+        });
+}

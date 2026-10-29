@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Fonte do ícone. Gere os tamanhos com: pnpm tauri icon src-tauri/icons/app-icon.png -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a2230"/>
+      <stop offset="1" stop-color="#0b0e13"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#60ccfc"/>
+      <stop offset="1" stop-color="#537feb"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#52a9fe" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#52a9fe" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Área útil de 824px com margem, como pedem os ícones do macOS. -->
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#glow)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="184.5" fill="none" stroke="#2a3442" stroke-width="3"/>
+
+  <!-- W em traço único -->
+  <polyline points="282,352 382,646 512,436 642,646 742,352"
+            fill="none" stroke="url(#mark)" stroke-width="84"
+            stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Cursor do terminal -->
+  <rect x="438" y="718" width="148" height="44" rx="10" fill="#e6ebf2"/>
+</svg>
