@@ -1,5 +1,6 @@
-import { MoreHorizontal, Play, Plus, Settings, Sparkles } from "lucide-react"
+import { MoreHorizontal, Play, Plus, Settings } from "lucide-react"
 
+import { ModelSelect } from "@/components/ModelSelect"
 import { PaneIcon } from "@/components/PaneIcon"
 import {
   DropdownMenu,
@@ -9,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Kbd } from "@/components/ui/kbd"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Sidebar,
   SidebarContent,
@@ -24,7 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { MODELS } from "@/lib/agents"
 import { shortcutLabel } from "@/lib/platform"
 import { useWorkspace } from "@/state/workspace-context"
 
@@ -132,23 +131,11 @@ export function AppSidebar({ onAddProject, onOpenSettings }: AppSidebarProps) {
       <SidebarFooter className="gap-2 p-3">
         <div className="flex flex-col gap-1.5 rounded-lg border p-2.5">
           <span className="text-[11px] text-dim">Modelo padrão</span>
-          <Select
+          <ModelSelect
             value={state.settings.modelId}
-            onValueChange={(modelId) => dispatch({ type: "settings/update", patch: { modelId } })}
-          >
-            <SelectTrigger size="sm" className="w-full border-none bg-transparent! px-0 text-[13px] shadow-none">
-              <Sparkles className="text-ai" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {MODELS.map((model) => (
-                <SelectItem key={model.id} value={model.id}>
-                  {model.name}
-                  <span className="text-xs text-dim">{model.vendor}</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={(modelId) => dispatch({ type: "settings/update", patch: { modelId } })}
+            className="w-full"
+          />
         </div>
         <SidebarMenu>
           <SidebarMenuItem>

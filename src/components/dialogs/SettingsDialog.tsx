@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from "react"
-import { Sparkles } from "lucide-react"
 
+import { AiSettings } from "@/components/dialogs/AiSettings"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-import { MODELS } from "@/lib/agents"
 import { cn } from "@/lib/utils"
 import type { ThemeName, Workflow } from "@/state/types"
 import { newId } from "@/state/workspace-reducer"
@@ -51,23 +50,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
         </section>
 
-        <section className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Modelo padrão para agentes</span>
-          <div className="flex flex-wrap gap-1.5">
-            {MODELS.map((model) => (
-              <Button
-                key={model.id}
-                variant="outline"
-                size="sm"
-                className={cn(settings.modelId === model.id && "border-primary text-primary")}
-                onClick={() => dispatch({ type: "settings/update", patch: { modelId: model.id } })}
-              >
-                <Sparkles />
-                {model.name}
-              </Button>
-            ))}
-          </div>
-        </section>
+        <Separator />
+
+        <AiSettings />
 
         <Separator />
 

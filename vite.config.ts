@@ -20,7 +20,7 @@ export default defineConfig(() => ({
   // 1. prevent Vite from obscuring rust errors
   clearScreen: false,
   // App desktop: o bundle único é carregado do disco, não da rede.
-  build: { chunkSizeWarningLimit: 1500 },
+  build: { chunkSizeWarningLimit: 2500 },
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
     port: 1420,

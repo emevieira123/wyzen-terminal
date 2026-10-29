@@ -172,14 +172,23 @@ body,
   overflow: hidden;
 }
 
-/* O xterm desenha o próprio fundo; o viewport não deve mostrar scrollbar clara. */
+/* Scrollbars no tema do app (o padrão do WebKit é claro mesmo no tema escuro). */
+.dark {
+  color-scheme: dark;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--input);
+  border-radius: 4px;
+}
+
+/* O xterm desenha o próprio fundo. */
 .xterm .xterm-viewport {
   background-color: transparent !important;
-}
-.xterm .xterm-viewport::-webkit-scrollbar {
-  width: 8px;
-}
-.xterm .xterm-viewport::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
 }

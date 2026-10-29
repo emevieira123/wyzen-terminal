@@ -1,6 +1,7 @@
 import type { AgentMessage } from "@/lib/agents"
 import {
   GRID_LIMIT,
+  type AgentPatch,
   type Pane,
   type PaneKind,
   type Project,
@@ -19,12 +20,15 @@ export type WorkspaceAction =
   | { type: "tab/groupIntoGrid" }
   | { type: "tab/select"; tabId: string }
   | { type: "tab/close"; tabId: string }
+  | { type: "tab/rename"; tabId: string; title: string }
   | { type: "pane/addToGrid"; tabId: string; kind: PaneKind }
   | { type: "pane/focus"; tabId: string; paneId: string }
   | { type: "pane/close"; tabId: string; paneId: string }
   | { type: "pane/setCwd"; paneId: string; cwd: string }
+  | { type: "pane/rename"; paneId: string; title: string }
   | { type: "agent/append"; paneId: string; message: AgentMessage }
   | { type: "agent/thinking"; paneId: string; thinking: boolean }
+  | { type: "agent/update"; paneId: string; patch: AgentPatch }
   | { type: "settings/update"; patch: Partial<Settings> }
   | { type: "workflow/save"; workflow: Workflow }
   | { type: "workflow/remove"; workflowId: string }
@@ -207,6 +211,15 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
     case "tab/close":
       return removeTab(state, action.tabId)
 
+    case "tab/rename": {
+      const title = action.title.trim()
+      const tab = state.tabs.find((t) => t.id === action.tabId)
+      if (!tab || !title) return state
+      const renamed = updateTab(state, tab.id, (t) => ({ ...t, title }))
+      // Aba de um painel só: o painel leva o nome junto, e ele continua igual se for para um grid.
+      return tab.kind === "grid" ? renamed : updatePane(renamed, tab.paneIds[0], (p) => ({ ...p, title }))
+    }
+
     case "pane/addToGrid": {
       const tab = state.tabs.find((t) => t.id === action.tabId)
       const project = state.projects.find((p) => p.id === tab?.projectId)
@@ -235,6 +248,12 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
       })
     }
 
+    case "pane/rename": {
+      const title = action.title.trim()
+      if (!title) return state
+      return updatePane(state, action.paneId, (p) => ({ ...p, title }))
+    }
+
     case "pane/setCwd":
       return updatePane(state, action.paneId, (p) => ({ ...p, cwd: action.cwd }))
 
@@ -248,6 +267,9 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
 
     case "agent/thinking":
       return updatePane(state, action.paneId, (p) => ({ ...p, thinking: action.thinking }), "agent")
+
+    case "agent/update":
+      return updatePane(state, action.paneId, (p) => ({ ...p, ...action.patch }), "agent")
 
     case "settings/update":
       return { ...state, settings: { ...state.settings, ...action.patch } }

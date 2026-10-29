@@ -45,7 +45,9 @@ export function TerminalView({ paneId, cwd, focused = true, className }: Termina
   useEffect(() => {
     if (!focused) return
     // Adiado pelo mesmo motivo do AgentView: menus fechando roubam o foco.
-    const timer = setTimeout(() => terminalRegistry.focus(paneId))
+    const timer = setTimeout(() => {
+      if (!isTypingElsewhere()) terminalRegistry.focus(paneId)
+    })
     return () => clearTimeout(timer)
   }, [focused, paneId])
 
@@ -55,4 +57,11 @@ export function TerminalView({ paneId, cwd, focused = true, className }: Termina
       className={cn("h-full w-full min-h-0 min-w-0 overflow-hidden bg-background", className)}
     />
   )
+}
+
+/** O usuário está digitando em outro campo (ex.: renomeando uma aba)? Então não roubamos o foco. */
+function isTypingElsewhere(): boolean {
+  const el = document.activeElement
+  if (!(el instanceof HTMLElement) || el.closest(".xterm")) return false
+  return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el.isContentEditable
 }

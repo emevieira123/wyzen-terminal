@@ -1,4 +1,5 @@
 mod pty;
+mod secrets;
 
 use std::process::Command;
 
@@ -71,6 +72,28 @@ async fn git_branch(cwd: String) -> Option<String> {
     (!branch.is_empty()).then_some(branch)
 }
 
+// Comandos `async` rodam fora da thread principal; o Keychain pode pedir
+// autorização ao usuário e não deve travar a interface.
+#[tauri::command]
+async fn get_api_key(provider: String) -> Result<Option<String>, String> {
+    secrets::get(&provider)
+}
+
+#[tauri::command]
+async fn api_key_status(provider: String) -> Result<secrets::ApiKeyStatus, String> {
+    secrets::status(&provider)
+}
+
+#[tauri::command]
+async fn set_api_key(provider: String, key: String) -> Result<(), String> {
+    secrets::set(&provider, &key)
+}
+
+#[tauri::command]
+async fn delete_api_key(provider: String) -> Result<(), String> {
+    secrets::delete(&provider)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -85,6 +108,10 @@ pub fn run() {
             close_pty_session,
             default_shell,
             git_branch,
+            get_api_key,
+            api_key_status,
+            set_api_key,
+            delete_api_key,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

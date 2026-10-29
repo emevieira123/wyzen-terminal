@@ -1,5 +1,6 @@
-import { Combine, LayoutGrid, Plus, X } from "lucide-react"
+import { Combine, LayoutGrid, Plus } from "lucide-react"
 
+import { TabItem } from "@/components/layout/TabItem"
 import { PaneIcon } from "@/components/PaneIcon"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Kbd } from "@/components/ui/kbd"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList } from "@/components/ui/tabs"
 import { isMac, shortcutLabel } from "@/lib/platform"
 import { cn } from "@/lib/utils"
 import { GRID_LIMIT } from "@/state/types"
@@ -42,28 +43,7 @@ export function TitleBar({ onOpenPalette }: { onOpenPalette: () => void }) {
       >
         <TabsList variant="line" className="h-full items-end gap-0.5 overflow-x-auto p-0">
           {tabs.map((tab) => (
-            <div key={tab.id} className="group/tab relative flex h-[34px] items-stretch">
-              <TabsTrigger
-                value={tab.id}
-                className={cn(
-                  "h-full flex-none gap-2 rounded-t-lg rounded-b-none border border-transparent pr-8 pl-3 text-[12.5px] font-normal",
-                  "after:hidden data-[state=active]:border-border data-[state=active]:border-b-background",
-                  "data-[state=active]:bg-background! data-[state=active]:text-foreground",
-                  "-mb-px",
-                )}
-              >
-                <PaneIcon kind={tab.kind} />
-                {tab.title}
-              </TabsTrigger>
-              <button
-                type="button"
-                aria-label={`Fechar ${tab.title}`}
-                onClick={() => dispatch({ type: "tab/close", tabId: tab.id })}
-                className="absolute top-1/2 right-2 grid size-4 -translate-y-1/2 place-items-center rounded text-dim hover:bg-border hover:text-foreground"
-              >
-                <X className="size-3" />
-              </button>
-            </div>
+            <TabItem key={tab.id} tab={tab} active={tab.id === activeTabId} />
           ))}
         </TabsList>
       </Tabs>

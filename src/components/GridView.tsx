@@ -1,10 +1,19 @@
-import { LayoutGrid, X } from "lucide-react"
+import { useState } from "react"
+import { LayoutGrid, Pencil, X } from "lucide-react"
 
 import { AgentView } from "@/components/AgentView"
 import { PaneIcon } from "@/components/PaneIcon"
+import { RenameField } from "@/components/RenameField"
 import { TerminalView } from "@/components/TerminalView"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
 import { cn } from "@/lib/utils"
 import { GRID_LIMIT, type Tab } from "@/state/types"
 import { useWorkspace } from "@/state/workspace-context"
@@ -31,6 +40,7 @@ export function GridView({ tab }: { tab: Tab }) {
   const panes = tab.paneIds.map((id) => state.panes[id]).filter((p) => p !== undefined)
   const full = panes.length >= GRID_LIMIT
   const layout = gridLayout(panes.length)
+  const [renamingId, setRenamingId] = useState<string | null>(null)
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -95,20 +105,56 @@ export function GridView({ tab }: { tab: Tab }) {
                   focused && "border-primary",
                 )}
               >
-                <header className="flex items-center gap-2 border-b bg-panel px-2.5 py-1.5 text-xs text-muted-foreground">
-                  <PaneIcon kind={pane.kind} />
-                  <span className="text-foreground">{pane.title}</span>
-                  <span className="min-w-0 truncate font-mono text-[11px]">{pane.cwd}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className="ml-auto text-dim"
-                    aria-label="Fechar painel"
-                    onClick={() => dispatch({ type: "pane/close", tabId: tab.id, paneId: pane.id })}
-                  >
-                    <X />
-                  </Button>
-                </header>
+                <ContextMenu>
+                  <ContextMenuTrigger asChild>
+                    <header className="flex items-center gap-2 border-b bg-panel px-2.5 py-1.5 text-xs text-muted-foreground">
+                      <PaneIcon kind={pane.kind} />
+                      {renamingId === pane.id ? (
+                        <RenameField
+                          initial={pane.title}
+                          onDone={(title) => {
+                            setRenamingId(null)
+                            if (title !== null) dispatch({ type: "pane/rename", paneId: pane.id, title })
+                          }}
+                          className="flex items-center"
+                        />
+                      ) : (
+                        <span
+                          className="text-foreground"
+                          title="Duplo clique ou botão direito para renomear"
+                          onDoubleClick={() => setRenamingId(pane.id)}
+                        >
+                          {pane.title}
+                        </span>
+                      )}
+                      <span className="min-w-0 truncate font-mono text-[11px]">{pane.cwd}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="ml-auto text-dim"
+                        aria-label="Fechar painel"
+                        onClick={() => dispatch({ type: "pane/close", tabId: tab.id, paneId: pane.id })}
+                      >
+                        <X />
+                      </Button>
+                    </header>
+                  </ContextMenuTrigger>
+                  {/* Sem devolver o foco ao cabeçalho: ele precisa ir para o campo de renomear. */}
+                  <ContextMenuContent className="w-44" onCloseAutoFocus={(event) => event.preventDefault()}>
+                    <ContextMenuItem onSelect={() => setRenamingId(pane.id)}>
+                      <Pencil />
+                      Renomear
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      variant="destructive"
+                      onSelect={() => dispatch({ type: "pane/close", tabId: tab.id, paneId: pane.id })}
+                    >
+                      <X />
+                      Fechar painel
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
                 <div className="min-h-0 flex-1">
                   {pane.kind === "terminal" ? (
                     <TerminalView paneId={pane.id} cwd={pane.cwd} focused={focused} className="p-2" />

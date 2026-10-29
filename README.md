@@ -77,20 +77,18 @@ O `attach` existe porque o shell imprime o prompt antes de o `listen` do fronten
 
 No macOS: ⌘T terminal, ⌘⇧A agente, ⌘K paleta, ⌘, configurações, ⌘B sidebar. Em Windows e Linux os mesmos atalhos usam Ctrl+Shift, porque Ctrl+T/K/A pertencem ao shell.
 
-## Ligando um agente de IA
+Para renomear uma aba, dê um duplo clique nela ou use o botão direito > Renomear. Nos painéis do grid vale o mesmo: duplo clique no título ou botão direito no cabeçalho. Enter confirma, Esc cancela.
 
-Nenhum provedor vem configurado. Implemente `AgentProvider` e registre no `main.tsx`:
+## Agentes de IA
 
-```ts
-import { registerAgentProvider } from "@/lib/agents"
+Três provedores, cada um com o SDK oficial e streaming: **Claude** (Anthropic, padrão), **GPT** (OpenAI) e **Gemini** (Google).
 
-registerAgentProvider({
-  id: "claude-sonnet",
-  async send(messages, context, signal) {
-    // chame a API do fornecedor, um CLI local ou um command Rust
-    return { text: "…", command: "pnpm test" }
-  },
-})
-```
+- **Configuração:** em Configurações > Provedor de IA há uma aba por provedor. Em cada uma você salva a chave, testa a conexão e escolhe o modelo padrão. O provedor em uso é o do modelo padrão (marcado com um ponto verde na aba).
+- **Chaves:** ficam no cofre do sistema (Keychain no macOS, Credential Manager no Windows, Secret Service no Linux), nunca no `localStorage`. Sem chave salva, o app usa a variável de ambiente: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` ou `GEMINI_API_KEY` (também aceita `GOOGLE_API_KEY`).
+- **Modelos:** cada provedor vem com uma lista inicial. "Atualizar modelos" busca na conta os modelos de chat disponíveis e acrescenta à lista. Cada chat pode trocar de modelo (e de provedor) no cabeçalho; o histórico vai junto como texto.
+- **Comandos sugeridos:** o modelo é instruído a colocar comandos num bloco ```` ```sh ````; o último vira o botão "Executar no terminal".
+- **Recusas:** no Claude, Opus 5.5, Sonnet 5.5 e Fable 5.1 usam `fallbacks: "default"`, que reexecuta no servidor uma resposta recusada pelos classificadores de segurança. Nos outros casos a recusa aparece no chat.
+- **Histórico no Claude:** só cresce. As respostas voltam à API com os blocos originais (inclusive `thinking`), e o system prompt fica fixo por conversa. Mudanças de diretório ou branch vão como texto na mensagem do usuário.
+- **OpenAI:** usa a Responses API com `store: false`; a conversa não fica guardada nos servidores da OpenAI.
 
-O `command` devolvido aparece com o botão "Executar no terminal".
+Outro provedor entra implementando `AgentProvider` em `src/lib/providers/` e registrando no `main.tsx`.

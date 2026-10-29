@@ -12,7 +12,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command"
-import { MODELS } from "@/lib/agents"
+import { getProviderInfo, PROVIDERS, modelsFor } from "@/lib/agents"
 import { shortcutLabel } from "@/lib/platform"
 import { useWorkspace } from "@/state/workspace-context"
 
@@ -115,17 +115,19 @@ export function CommandPalette({ open, onOpenChange, onOpenSettings, onChangeDir
 
           <CommandSeparator />
           <CommandGroup heading="Modelo">
-            {MODELS.map((model) => (
-              <CommandItem
-                key={model.id}
-                value={`modelo ${model.name} ${model.vendor}`}
-                onSelect={run(() => dispatch({ type: "settings/update", patch: { modelId: model.id } }))}
-              >
-                <Sparkles className="text-ai" />
-                Usar {model.name}
-                <CommandShortcut>{model.vendor}</CommandShortcut>
-              </CommandItem>
-            ))}
+            {PROVIDERS.flatMap((provider) =>
+              modelsFor(provider.id, state.settings.discoveredModels[provider.id]).map((model) => (
+                <CommandItem
+                  key={model.id}
+                  value={`modelo ${model.name} ${provider.name} ${provider.vendor}`}
+                  onSelect={run(() => dispatch({ type: "settings/update", patch: { modelId: model.id } }))}
+                >
+                  <Sparkles className="text-ai" />
+                  Usar {model.name}
+                  <CommandShortcut>{getProviderInfo(model.provider).vendor}</CommandShortcut>
+                </CommandItem>
+              )),
+            )}
           </CommandGroup>
         </CommandList>
       </Command>

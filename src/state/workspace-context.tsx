@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react"
 
-import { MODELS } from "@/lib/agents"
+import { DEFAULT_MODEL_ID, getModel } from "@/lib/agents"
 import { defaultShell, quotePath } from "@/lib/pty"
 import { terminalRegistry } from "@/lib/terminal-registry"
 import type { Project, Settings, Workflow, WorkspaceState } from "@/state/types"
@@ -29,7 +29,12 @@ interface Persisted {
   settings: Settings
 }
 
-const DEFAULT_SETTINGS: Settings = { theme: "dark", modelId: MODELS[0].id, showWorkflows: true }
+const DEFAULT_SETTINGS: Settings = {
+  theme: "dark",
+  modelId: DEFAULT_MODEL_ID,
+  showWorkflows: true,
+  discoveredModels: {},
+}
 
 function loadPersisted(): Persisted {
   try {
@@ -40,7 +45,12 @@ function loadPersisted(): Persisted {
         return {
           projects: data.projects,
           workflows: data.workflows ?? [],
-          settings: { ...DEFAULT_SETTINGS, ...data.settings },
+          settings: {
+            ...DEFAULT_SETTINGS,
+            ...data.settings,
+            // Modelos que saíram da lista caem no padrão.
+            modelId: getModel(data.settings?.modelId).id,
+          },
         }
       }
     }
