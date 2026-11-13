@@ -1,6 +1,6 @@
 # Wyzen Terminal
 
-Site: https://emevieira123.github.io/wyzen-terminal/
+Site: https://terminal.wyzen.com.br
 
 Terminal desktop com projetos agrupados, abas, grid de até 6 painéis e agentes de IA. Tauri v2 (Rust) no backend, React 19 + shadcn/ui no frontend. Visual baseado no protótipo "Terminal IA Protótipo" do Claude Design.
 
@@ -43,7 +43,7 @@ Abas, nomes, painéis, tamanhos do grid, pasta de cada terminal e conversas dos 
 
 ### Landing page
 
-A página fica em `site/` (HTML estático, sem build) e é publicada no GitHub Pages pelo workflow `.github/workflows/pages.yml` sempre que algo em `site/` muda na `main`. O botão de download consulta a API do GitHub e aponta para o instalador do último release publicado, então não precisa editar a página a cada versão. Os prints ficam em `site/assets/`.
+A página fica em `site/` (HTML estático, sem build) e é publicada no GitHub Pages pelo workflow `.github/workflows/pages.yml` sempre que algo em `site/` muda na `main`. O domínio `terminal.wyzen.com.br` é um CNAME para `emevieira123.github.io` no DNS do Registro.br, configurado em Settings > Pages > Custom domain. O botão de download consulta a API do GitHub e aponta para o instalador do último release publicado, então não precisa editar a página a cada versão. Os prints ficam em `site/assets/`.
 
 ### Atualização pelo app
 
