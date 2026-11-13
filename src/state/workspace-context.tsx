@@ -14,7 +14,7 @@ import { defaultShell, ptyStatus, quotePath, type PtySessionStatus } from "@/lib
 import { setBeforeRestart } from "@/lib/restart"
 import { terminalRegistry } from "@/lib/terminal-registry"
 import { loadSession, saveSession } from "@/state/session"
-import type { Project, Settings, Workflow, WorkspaceState } from "@/state/types"
+import type { Folder, Project, Settings, Workflow, WorkspaceState } from "@/state/types"
 import {
   focusedPane,
   newId,
@@ -27,6 +27,7 @@ const STORAGE_KEY = "wyzen-terminal:v1"
 
 interface Persisted {
   projects: Project[]
+  folders: Folder[]
   workflows: Workflow[]
   settings: Settings
 }
@@ -48,6 +49,7 @@ function loadPersisted(): Persisted {
       if (data.projects?.length) {
         return {
           projects: data.projects,
+          folders: data.folders ?? [],
           workflows: data.workflows ?? [],
           settings: {
             ...DEFAULT_SETTINGS,
@@ -63,16 +65,18 @@ function loadPersisted(): Persisted {
   }
   return {
     projects: [{ id: newId(), name: "Home", path: "~", color: projectColor(0) }],
+    folders: [],
     workflows: [],
     settings: DEFAULT_SETTINGS,
   }
 }
 
 function initState(): WorkspaceState {
-  const { projects, workflows, settings } = loadPersisted()
+  const { projects, folders, workflows, settings } = loadPersisted()
   const session = loadSession(projects.map((p) => p.id))
   return {
     projects,
+    folders,
     workflows,
     settings,
     panes: session?.panes ?? {},
@@ -124,11 +128,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const data: Persisted = {
       projects: state.projects,
+      folders: state.folders,
       workflows: state.workflows,
       settings: state.settings,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  }, [state.projects, state.workflows, state.settings])
+  }, [state.projects, state.folders, state.workflows, state.settings])
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", state.settings.theme === "dark")

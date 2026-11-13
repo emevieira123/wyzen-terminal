@@ -1,12 +1,12 @@
-import { MoreHorizontal, Play, Plus, Settings } from "lucide-react"
+import { useState } from "react"
+import { Folder as FolderIcon, FolderPlus, Play, Plus, Settings } from "lucide-react"
 
+import { ProjectTree } from "@/components/layout/ProjectTree"
 import { ModelSelect } from "@/components/ModelSelect"
-import { PaneIcon } from "@/components/PaneIcon"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Kbd } from "@/components/ui/kbd"
@@ -19,12 +19,11 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { shortcutLabel } from "@/lib/platform"
+import { newId } from "@/state/workspace-reducer"
 import { useWorkspace } from "@/state/workspace-context"
 
 interface AppSidebarProps {
@@ -34,6 +33,14 @@ interface AppSidebarProps {
 
 export function AppSidebar({ onAddProject, onOpenSettings }: AppSidebarProps) {
   const { state, dispatch, runCommand } = useWorkspace()
+  const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null)
+
+  // A pasta nova já abre com o nome em edição.
+  function addFolder() {
+    const folderId = newId()
+    dispatch({ type: "folder/add", folderId, name: "Nova pasta" })
+    setRenamingFolderId(folderId)
+  }
 
   return (
     // O container do Sidebar é `fixed`; encaixamos entre a barra de título e a de status.
@@ -43,60 +50,25 @@ export function AppSidebar({ onAddProject, onOpenSettings }: AppSidebarProps) {
           <SidebarGroupLabel className="text-[11px] tracking-[.08em] text-dim uppercase">
             Projetos
           </SidebarGroupLabel>
-          <SidebarGroupAction title="Adicionar projeto" onClick={onAddProject}>
-            <Plus />
-          </SidebarGroupAction>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarGroupAction title="Adicionar projeto ou pasta">
+                <Plus />
+              </SidebarGroupAction>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start" onCloseAutoFocus={(event) => event.preventDefault()}>
+              <DropdownMenuItem onSelect={onAddProject}>
+                <FolderPlus />
+                Novo projeto
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={addFolder}>
+                <FolderIcon />
+                Nova pasta
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {state.projects.map((project) => {
-                const projectTabs = state.tabs.filter((t) => t.projectId === project.id)
-                const count = projectTabs.length
-                const attention = project.id !== state.activeProjectId && projectTabs.some((t) => t.attention)
-                return (
-                  <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton
-                      isActive={project.id === state.activeProjectId}
-                      onClick={() => dispatch({ type: "project/select", projectId: project.id })}
-                      tooltip={project.path}
-                      className="text-[13px]"
-                    >
-                      <span className="size-2 shrink-0 rounded-[2px]" style={{ background: project.color }} />
-                      <span className="truncate">{project.name}</span>
-                      {attention && <span className="size-1.5 shrink-0 rounded-full bg-warning" aria-label="tem aviso novo" />}
-                    </SidebarMenuButton>
-                    <SidebarMenuBadge className="font-mono text-[11px] text-dim group-hover/menu-item:opacity-0">
-                      {count}
-                    </SidebarMenuBadge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <SidebarMenuAction showOnHover aria-label={`Ações de ${project.name}`}>
-                          <MoreHorizontal />
-                        </SidebarMenuAction>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent side="right" align="start" onCloseAutoFocus={(event) => event.preventDefault()}>
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            dispatch({ type: "project/select", projectId: project.id })
-                            dispatch({ type: "tab/new", kind: "terminal" })
-                          }}
-                        >
-                          <PaneIcon kind="terminal" />
-                          Novo terminal aqui
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          variant="destructive"
-                          disabled={state.projects.length <= 1}
-                          onSelect={() => dispatch({ type: "project/remove", projectId: project.id })}
-                        >
-                          Remover projeto
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
+            <ProjectTree renamingFolderId={renamingFolderId} onRenameDone={() => setRenamingFolderId(null)} />
           </SidebarGroupContent>
         </SidebarGroup>
 

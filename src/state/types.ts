@@ -7,6 +7,15 @@ export interface Project {
   name: string
   path: string
   color: string
+  /** Pasta da sidebar onde o projeto está; sem valor, fica fora das pastas. */
+  folderId?: string | null
+}
+
+/** Pasta da sidebar para organizar projetos. */
+export interface Folder {
+  id: string
+  name: string
+  collapsed: boolean
 }
 
 export interface Workflow {
@@ -75,6 +84,7 @@ export interface Tab {
 
 export interface WorkspaceState {
   projects: Project[]
+  folders: Folder[]
   workflows: Workflow[]
   settings: Settings
   panes: Record<string, Pane>

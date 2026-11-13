@@ -90,6 +90,8 @@ O `attach` existe porque o shell imprime o prompt antes de o `listen` do fronten
 
 No macOS: ⌘T terminal, ⌘⇧A agente, ⌘K paleta, ⌘, configurações, ⌘B sidebar. Em Windows e Linux os mesmos atalhos usam Ctrl+Shift, porque Ctrl+T/K/A pertencem ao shell.
 
+Na sidebar, o "+" de Projetos cria um projeto ou uma pasta. Arraste um projeto para uma pasta para colocá-lo dentro dela, para outro projeto para posicioná-lo antes dele, ou para a área "Soltar aqui para tirar da pasta" (aparece durante o arraste). Clique na pasta para expandir ou recolher; duplo clique ou o menu "…" renomeia. Remover uma pasta devolve os projetos para fora dela, sem apagar nada.
+
 No grid, arraste o espaço entre os painéis para redimensionar: entre colunas ajusta a largura, entre as linhas ajusta a altura. Duplo clique na divisória volta ao tamanho igual. Adicionar ou fechar um painel reorganiza o grid com tamanhos iguais.
 
 Para renomear uma aba, dê um duplo clique nela ou use o botão direito > Renomear. Nos painéis do grid vale o mesmo: duplo clique no título ou botão direito no cabeçalho. Enter confirma, Esc cancela.

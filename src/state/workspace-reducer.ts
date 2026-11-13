@@ -15,6 +15,11 @@ export type WorkspaceAction =
   | { type: "project/add"; name: string; path: string }
   | { type: "project/remove"; projectId: string }
   | { type: "project/select"; projectId: string }
+  | { type: "project/move"; projectId: string; folderId: string | null; beforeProjectId?: string }
+  | { type: "folder/add"; folderId: string; name: string }
+  | { type: "folder/rename"; folderId: string; name: string }
+  | { type: "folder/toggle"; folderId: string; collapsed?: boolean }
+  | { type: "folder/remove"; folderId: string }
   | { type: "tab/new"; kind: PaneKind; paneId?: string }
   | { type: "tab/newGrid" }
   | { type: "tab/groupIntoGrid" }
@@ -139,6 +144,45 @@ export function workspaceReducer(state: WorkspaceState, action: WorkspaceAction)
           next.activeProjectId === action.projectId ? projects[0].id : next.activeProjectId,
       }
     }
+
+    case "project/move": {
+      const project = state.projects.find((p) => p.id === action.projectId)
+      if (!project || action.beforeProjectId === project.id) return state
+      const moved = { ...project, folderId: action.folderId }
+      const rest = state.projects.filter((p) => p.id !== project.id)
+      // Antes do projeto alvo; sem alvo, depois do último projeto da mesma pasta.
+      let index = action.beforeProjectId ? rest.findIndex((p) => p.id === action.beforeProjectId) : -1
+      if (index < 0) {
+        const lastInGroup = rest.findLastIndex((p) => (p.folderId ?? null) === action.folderId)
+        index = lastInGroup < 0 ? rest.length : lastInGroup + 1
+      }
+      return { ...state, projects: [...rest.slice(0, index), moved, ...rest.slice(index)] }
+    }
+
+    case "folder/add":
+      return { ...state, folders: [...state.folders, { id: action.folderId, name: action.name, collapsed: false }] }
+
+    case "folder/rename": {
+      const name = action.name.trim()
+      if (!name) return state
+      return { ...state, folders: state.folders.map((f) => (f.id === action.folderId ? { ...f, name } : f)) }
+    }
+
+    case "folder/toggle":
+      return {
+        ...state,
+        folders: state.folders.map((f) =>
+          f.id === action.folderId ? { ...f, collapsed: action.collapsed ?? !f.collapsed } : f,
+        ),
+      }
+
+    case "folder/remove":
+      // Os projetos da pasta voltam para fora das pastas; nada é apagado.
+      return {
+        ...state,
+        folders: state.folders.filter((f) => f.id !== action.folderId),
+        projects: state.projects.map((p) => (p.folderId === action.folderId ? { ...p, folderId: null } : p)),
+      }
 
     case "project/select": {
       // A aba ativa do projeto fica à vista: o aviso dela já foi visto.
