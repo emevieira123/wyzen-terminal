@@ -1,0 +1,341 @@
+/* Paleta e fontes do próprio app (src/index.css, tema escuro). */
+:root {
+  color-scheme: dark;
+  --bg: #0f1319;
+  --chrome: #0b0e13;
+  --panel: #121820;
+  --hover: #1a2230;
+  --line: #1c222c;
+  --line-2: #232c38;
+  --fg: #e6ebf2;
+  --muted: #8b95a7;
+  --dim: #5d6676;
+  --accent: oklch(0.72 0.15 250);
+  --accent-soft: oklch(0.72 0.15 250 / 0.12);
+  --success: #3fb950;
+  --sans: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --page: 1120px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--fg);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+code.block {
+  display: block;
+  margin-top: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin: 0;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(34px, 5.5vw, 58px);
+  max-width: 18ch;
+}
+
+h2 {
+  font-size: clamp(26px, 3.4vw, 36px);
+}
+
+h3 {
+  font-size: 18px;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* Barra do topo */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  color: var(--fg);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.nav nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav nav a {
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+.nav nav a:hover {
+  color: var(--fg);
+}
+
+main {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Abertura */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 72px 0 40px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font: 500 13px var(--mono);
+}
+
+.lead {
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.lead.small {
+  font-size: 16px;
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  color: var(--fg);
+  font-weight: 500;
+  text-decoration: none;
+}
+.button:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+
+.button.primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--chrome);
+}
+.button.primary:hover {
+  filter: brightness(1.08);
+  background: var(--accent);
+  color: var(--chrome);
+}
+
+.meta {
+  color: var(--dim);
+  font-size: 13px;
+}
+
+/* Prints do app */
+.shot {
+  margin: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--chrome);
+  box-shadow:
+    0 30px 80px -30px oklch(0.72 0.15 250 / 0.35),
+    0 12px 40px rgb(0 0 0 / 0.45);
+}
+
+/* Recursos */
+section {
+  padding: 88px 0 0;
+}
+
+.features h2 {
+  margin-bottom: 28px;
+}
+
+.features .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px;
+}
+
+.features article,
+.platforms article {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.features article p,
+.platforms li,
+.split p,
+.updates p {
+  color: var(--muted);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.split-text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.updates {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 70ch;
+}
+
+/* Instalação */
+.install {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.platforms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.platforms ol {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.downloads a {
+  font: 500 13px var(--mono);
+  padding: 6px 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 7px;
+  color: var(--fg);
+  text-decoration: none;
+}
+.downloads a:hover {
+  border-color: var(--accent);
+}
+
+.note {
+  font-size: 14px;
+  color: var(--dim);
+}
+
+footer {
+  max-width: var(--page);
+  margin: 96px auto 0;
+  padding: 28px 16px 40px;
+  border-top: 1px solid var(--line);
+  color: var(--dim);
+  font-size: 14px;
+}
+
+footer a {
+  margin-left: 6px;
+}
+
+@media (max-width: 760px) {
+  .nav nav a:not(:last-child) {
+    display: none;
+  }
+  .hero {
+    padding-top: 40px;
+  }
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  section {
+    padding-top: 64px;
+  }
+}

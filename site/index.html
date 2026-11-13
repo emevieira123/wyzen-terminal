@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wyzen Terminal</title>
+    <meta
+      name="description"
+      content="Terminal para desenvolvedores com projetos em pastas, abas, grid de até seis painéis e agentes de IA (Claude, GPT e Gemini). Para macOS, Windows e Linux."
+    />
+    <meta property="og:title" content="Wyzen Terminal" />
+    <meta
+      property="og:description"
+      content="Terminal com projetos em pastas, grid de painéis e agentes de IA. Grátis e de código aberto."
+    />
+    <meta property="og:image" content="assets/grid.jpg" />
+    <meta name="theme-color" content="#0b0e13" />
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <a class="brand" href="#">
+        <img src="assets/icon.png" alt="" width="28" height="28" />
+        Wyzen Terminal
+      </a>
+      <nav>
+        <a href="#recursos">Recursos</a>
+        <a href="#instalar">Instalar</a>
+        <a href="https://github.com/emevieira123/wyzen-terminal">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Grátis e de código aberto</p>
+        <h1>Um terminal organizado por projeto, com agentes de IA do lado.</h1>
+        <p class="lead">
+          O Wyzen Terminal abre cada projeto na pasta certa, junta vários terminais num grid e deixa você perguntar
+          ao Claude, ao GPT ou ao Gemini sem trocar de app.
+        </p>
+        <div class="cta">
+          <a id="download" class="button primary" href="https://github.com/emevieira123/wyzen-terminal/releases/latest">
+            Baixar
+          </a>
+          <a class="button" href="#instalar">Outras plataformas</a>
+        </div>
+        <p id="release-info" class="meta">macOS, Windows e Linux</p>
+      </section>
+
+      <figure class="shot">
+        <img
+          src="assets/grid.jpg"
+          width="1520"
+          height="772"
+          alt="Wyzen Terminal com pastas de projetos na barra lateral e um grid de três terminais: servidor da API, Vite e testes"
+        />
+      </figure>
+
+      <section id="recursos" class="features">
+        <h2>O que ele faz</h2>
+        <div class="grid">
+          <article>
+            <h3>Projetos em pastas</h3>
+            <p>
+              Cada projeto guarda a própria pasta, e todo terminal novo já abre nela. Na barra lateral você cria
+              pastas e arrasta os projetos para dentro, do jeito que fizer sentido para você.
+            </p>
+          </article>
+          <article>
+            <h3>Abas e grid</h3>
+            <p>
+              Até seis terminais ou agentes lado a lado. Arraste as divisórias para dar mais espaço a quem precisa e
+              renomeie cada painel: "backend" e "frontend" dizem mais que dois "zsh".
+            </p>
+          </article>
+          <article>
+            <h3>Avisos do Claude Code</h3>
+            <p>
+              Deixe o Claude Code trabalhando numa aba e siga em outra. Quando ele termina ou pede aprovação, aparece
+              um aviso com o nome da aba, e a aba fica marcada até você olhar.
+            </p>
+          </article>
+          <article>
+            <h3>Volta como estava</h3>
+            <p>
+              Ao reabrir o app, abas, nomes, tamanhos do grid e a pasta de cada terminal voltam. Os programas que
+              estavam rodando precisam ser iniciados de novo.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="split">
+        <div class="split-text">
+          <h2>Pergunte sem sair do terminal</h2>
+          <p>
+            Abra uma aba de agente e pergunte sobre o projeto, cole um erro ou peça um comando. O agente sabe em que
+            pasta e branch você está. Quando a resposta traz um comando, um clique manda ele para o terminal.
+          </p>
+          <p>
+            Funciona com Claude, GPT e Gemini usando a sua própria chave de API, que fica guardada no cofre do sistema
+            (Keychain, Credential Manager ou Secret Service). Cada conversa pode usar um modelo diferente.
+          </p>
+        </div>
+        <figure class="shot small">
+          <img
+            src="assets/agente.jpg"
+            width="1520"
+            height="772"
+            alt="Aba de agente com o Claude Opus explicando a causa de um teste falhando e sugerindo um comando com o botão Executar no terminal"
+            loading="lazy"
+          />
+        </figure>
+      </section>
+
+      <section class="updates">
+        <h2>Atualiza sozinho</h2>
+        <p>
+          Quando sai uma versão nova, o app avisa e instala com um clique. Se algum terminal estiver rodando algo, ele
+          pergunta antes de reiniciar. No macOS e no Linux dá para instalar agora e só usar a versão nova na próxima
+          vez que abrir o app.
+        </p>
+      </section>
+
+      <section id="instalar" class="install">
+        <h2>Instalar</h2>
+        <p class="lead small">
+          Os instaladores ainda não têm assinatura da Apple nem da Microsoft, então o sistema mostra um aviso na
+          primeira abertura. Os passos abaixo liberam o app.
+        </p>
+
+        <div class="platforms">
+          <article>
+            <h3>macOS</h3>
+            <div class="downloads" data-platform="mac"></div>
+            <ol>
+              <li>Abra o <code>.dmg</code> e arraste o Wyzen Terminal para Aplicativos.</li>
+              <li>Abra o app. O macOS vai dizer que não conseguiu verificar o desenvolvedor.</li>
+              <li>Em Ajustes do Sistema &gt; Privacidade e Segurança, clique em <strong>Abrir Mesmo Assim</strong>.</li>
+            </ol>
+            <p class="note">
+              Se aparecer a mensagem de que o app "está danificado", rode uma vez no Terminal:
+              <code class="block">xattr -dr com.apple.quarantine "/Applications/Wyzen Terminal.app"</code>
+            </p>
+          </article>
+
+          <article>
+            <h3>Windows</h3>
+            <div class="downloads" data-platform="windows"></div>
+            <ol>
+              <li>Rode o instalador <code>.exe</code>.</li>
+              <li>Se o SmartScreen aparecer, clique em <strong>Mais informações</strong> e depois em <strong>Executar assim mesmo</strong>.</li>
+            </ol>
+          </article>
+
+          <article>
+            <h3>Linux</h3>
+            <div class="downloads" data-platform="linux"></div>
+            <ol>
+              <li>
+                Para o AppImage, dê permissão de execução com <code>chmod +x</code> e abra. É o único formato que se
+                atualiza sozinho.
+              </li>
+              <li>O <code>.deb</code> e o <code>.rpm</code> instalam pelo gerenciador de pacotes; para atualizar, baixe o novo.</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Projeto pessoal de Emerson Vieira, feito com Tauri, React e xterm.js.
+        <a href="https://github.com/emevieira123/wyzen-terminal">Código no GitHub</a>
+      </p>
+    </footer>
+
+    <script src="main.js"></script>
+  </body>
+</html>

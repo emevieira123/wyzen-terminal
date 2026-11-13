@@ -1,5 +1,7 @@
 # Wyzen Terminal
 
+Site: https://emevieira123.github.io/wyzen-terminal/
+
 Terminal desktop com projetos agrupados, abas, grid de até 6 painéis e agentes de IA. Tauri v2 (Rust) no backend, React 19 + shadcn/ui no frontend. Visual baseado no protótipo "Terminal IA Protótipo" do Claude Design.
 
 ## Requisitos
@@ -38,6 +40,10 @@ Também dá para rodar pela aba Actions > Release > Run workflow, sem criar tag.
 ### Sessão
 
 Abas, nomes, painéis, tamanhos do grid, pasta de cada terminal e conversas dos agentes são salvos e voltam quando o app abre de novo (inclusive depois de uma atualização). A pasta acompanha os `cd` feitos no shell (consultada a cada 10 segundos via `ps`/`lsof` no macOS e `/proc` no Linux). Os programas que estavam rodando não voltam: cada terminal reabre um shell novo na mesma pasta.
+
+### Landing page
+
+A página fica em `site/` (HTML estático, sem build) e é publicada no GitHub Pages pelo workflow `.github/workflows/pages.yml` sempre que algo em `site/` muda na `main`. O botão de download consulta a API do GitHub e aponta para o instalador do último release publicado, então não precisa editar a página a cada versão. Os prints ficam em `site/assets/`.
 
 ### Atualização pelo app
 
