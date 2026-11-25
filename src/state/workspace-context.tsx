@@ -39,6 +39,7 @@ const DEFAULT_SETTINGS: Settings = {
   discoveredModels: {},
   alertSound: true,
   alertSystem: true,
+  optionAsMeta: false,
 }
 
 function loadPersisted(): Persisted {
@@ -139,6 +140,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.toggle("dark", state.settings.theme === "dark")
     terminalRegistry.setTheme(state.settings.theme)
   }, [state.settings.theme])
+
+  useEffect(() => {
+    terminalRegistry.setOptionAsMeta(state.settings.optionAsMeta)
+  }, [state.settings.optionAsMeta])
 
   // Sessão (abas, painéis, grid, conversas) salva a cada mudança, agrupando rajadas.
   useEffect(() => {

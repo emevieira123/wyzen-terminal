@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { isMac } from "@/lib/platform"
 import { checkForUpdates } from "@/lib/updater"
 import { cn } from "@/lib/utils"
 import type { ThemeName, Workflow } from "@/state/types"
@@ -86,6 +87,26 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             Notificação do sistema com a janela fora de foco
           </Label>
         </section>
+
+        {isMac && (
+          <>
+            <Separator />
+            <section className="flex flex-col gap-2">
+              <span className="text-xs text-muted-foreground">Teclado</span>
+              <Label className="text-[13px] font-normal">
+                <Switch
+                  checked={settings.optionAsMeta}
+                  onCheckedChange={(optionAsMeta) => dispatch({ type: "settings/update", patch: { optionAsMeta } })}
+                />
+                Usar Option como Meta no terminal
+              </Label>
+              <p className="text-xs text-dim">
+                Ligado, Option+B e Option+F pulam palavras no shell, mas Option deixa de digitar caracteres como ç e
+                acentos.
+              </p>
+            </section>
+          </>
+        )}
 
         <Separator />
 

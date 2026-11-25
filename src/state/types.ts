@@ -35,6 +35,8 @@ export interface Settings {
   alertSound: boolean
   /** Notificação do sistema quando a janela não está em foco. */
   alertSystem: boolean
+  /** macOS: Option vira Meta do shell; desligado, Option digita caracteres (ç, acentos). */
+  optionAsMeta: boolean
 }
 
 interface PaneBase {

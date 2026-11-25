@@ -31,6 +31,7 @@ const handles = new Map<string, TerminalHandle>()
 /** Texto enviado a um painel que ainda não montou (ex.: workflow numa aba nova). */
 const queuedBeforeMount = new Map<string, string[]>()
 let currentTheme: ThemeName = "dark"
+let optionAsMeta = false
 
 function createHandle(paneId: string, cwd: string): TerminalHandle {
   const term = new Terminal({
@@ -40,7 +41,8 @@ function createHandle(paneId: string, cwd: string): TerminalHandle {
     cursorBlink: true,
     allowProposedApi: false,
     scrollback: 10_000,
-    macOptionIsMeta: true,
+    // Desligado por padrão: com ele ligado, ⌥C não vira "ç" e os acentos feitos com Option somem.
+    macOptionIsMeta: optionAsMeta,
     theme: xtermThemes[currentTheme],
   })
   const fit = new FitAddon()
@@ -197,6 +199,12 @@ export const terminalRegistry = {
   setTheme(theme: ThemeName) {
     currentTheme = theme
     for (const handle of handles.values()) handle.term.options.theme = xtermThemes[theme]
+  },
+
+  /** macOS: Option funciona como Meta do shell (Alt+B, Alt+F) em vez de digitar caracteres. */
+  setOptionAsMeta(enabled: boolean) {
+    optionAsMeta = enabled
+    for (const handle of handles.values()) handle.term.options.macOptionIsMeta = enabled
   },
 }
 
